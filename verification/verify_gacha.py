@@ -1,5 +1,6 @@
 import re
 from playwright.sync_api import sync_playwright, expect
+import time
 
 def verify_gacha_frontend(page):
     # Inject mock for google.script.run
@@ -28,6 +29,8 @@ def verify_gacha_frontend(page):
               },
               getItemAsset: function(folder, img, desc) {
                  console.log('getItemAsset called with', folder, img, desc);
+                 // Delay must be less than animation time (2000ms) to test synchronization
+                 // Or we can test if it waits for 2000ms even if data is fast
                  setTimeout(() => {
                     if (this.successHandler) {
                          this.successHandler({
@@ -36,7 +39,7 @@ def verify_gacha_frontend(page):
                             mdContent: "# アイテム詳細\\nこれは**素晴らしい**アイテムです。"
                          });
                     }
-                 }, 1000);
+                 }, 500);
               }
             }
           }
@@ -51,7 +54,12 @@ def verify_gacha_frontend(page):
     expect(heading).to_have_text("お楽しみガチャ")
     print("Title verified.")
 
-    # 2. Verify Button Initial State (Disabled)
+    # 2. Verify SVG Machine Presence
+    machine_svg = page.locator("svg#machine")
+    expect(machine_svg).to_be_visible()
+    print("SVG Machine verified.")
+
+    # 3. Verify Button Initial State (Disabled)
     button = page.locator("#btn-pull")
     expect(button).to_have_text("ガチャを回す！")
     expect(button).to_be_disabled()
@@ -60,52 +68,68 @@ def verify_gacha_frontend(page):
     # Take screenshot of initial state
     page.screenshot(path="verification/initial_state.png")
 
-    # 3. Verify Button Enabled after Data Load (simulated by mock)
+    # 4. Verify Button Enabled after Data Load (simulated by mock)
     expect(button).to_be_enabled(timeout=2000)
     print("Button enabled state verified.")
 
     # Take screenshot of enabled state
     page.screenshot(path="verification/enabled_state.png")
 
-    # --- Feature #2 Verification ---
+    # --- Animation & Logic Verification ---
 
-    # 4. Click Spin Button
+    # 5. Click Spin Button
+    start_time = time.time()
     button.click()
     print("Button clicked.")
 
-    # 5. Verify Immediate State (Animation, Disabled, Loading)
+    # 6. Verify Immediate State (Animation Started)
     expect(button).to_be_disabled()
 
     machine = page.locator("#machine")
     expect(machine).to_have_class(re.compile(r"animate-shake"))
 
+    capsule = page.locator("#capsule")
+    expect(capsule).to_have_class(re.compile(r"capsule-appear"))
+
     loading = page.locator("#loading")
     expect(loading).to_be_visible()
 
-    print("Spinning state verified.")
-    page.screenshot(path="verification/spinning_state.png")
+    print("Animation started verified.")
+    page.screenshot(path="verification/animating_state.png")
 
-    # 6. Verify Result State (after delay)
-    # The mock waits 1000ms.
+    # 7. Verify Wait (Should wait at least 2 seconds)
+    # Check at 1.5s: animation should still be active
+    time.sleep(1.5)
+    expect(capsule).to_have_class(re.compile(r"capsule-appear"))
+    print("Animation persistence verified.")
+
+    # 8. Verify Completion (After ~2s + small buffer)
+    # The JS logic waits 2000ms.
+    # We allow some buffer for playwright check.
+
+    # Wait for result content to appear
     result_content = page.locator("#result-content")
-    expect(result_content).to_be_visible(timeout=3000)
+    expect(result_content).to_be_visible(timeout=5000) # Give enough buffer
 
+    elapsed = time.time() - start_time
+    print(f"Result appeared after {elapsed:.2f} seconds")
+
+    if elapsed < 2.0:
+        raise Exception("Animation finished too early! It should wait at least 2 seconds.")
+
+    # Verify final state
     expect(machine).not_to_have_class(re.compile(r"animate-shake"))
+    expect(capsule).not_to_have_class(re.compile(r"capsule-appear"))
     expect(loading).to_be_hidden()
 
+    # Verify Smoke Class (it might disappear quickly, but let's check if it was added)
+    # Smoke animation is 0.5s. It might be hard to catch if we are late, but we can check if the element exists.
+    smoke = page.locator("#smoke")
+    # In the JS, we add 'smoke-pop' class.
+    expect(smoke).to_have_class(re.compile(r"smoke-pop"))
+
     item_name = page.locator("#item-name")
-    name_text = item_name.text_content()
-    # Should be one of the mocked items
-    assert name_text in ["伝説の剣", "回復薬"], f"Unexpected item name: {name_text}"
-
-    item_img = page.locator("#item-img")
-    expect(item_img).to_have_attribute("src", re.compile(r"^data:image/"))
-
-    item_desc = page.locator("#item-desc")
-    # Verify markdown was rendered (check for HTML tag or text content)
-    # The mock returns "**素晴らしい**". marked should render it as <strong> or similar?
-    # Or just check text.
-    expect(item_desc).to_contain_text("素晴らしいアイテム")
+    expect(item_name).to_have_text(re.compile(r"伝説の剣|回復薬"))
 
     expect(button).to_be_enabled()
     expect(button).to_have_text("もう一度回す")

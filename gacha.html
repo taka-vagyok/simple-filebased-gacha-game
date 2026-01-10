@@ -11,28 +11,123 @@
       /* ガチャ演出用CSS */
       @keyframes shake {
         0% { transform: rotate(0deg); }
-        25% { transform: rotate(5deg); }
+        25% { transform: rotate(2deg); }
         50% { transform: rotate(0deg); }
-        75% { transform: rotate(-5deg); }
+        75% { transform: rotate(-2deg); }
         100% { transform: rotate(0deg); }
       }
-      .animate-shake { animation: shake 0.5s infinite; }
+      .animate-shake { animation: shake 0.1s infinite; }
       
-      .capsule {
-        transition: transform 1s;
+      .capsule-container {
+        position: absolute;
+        top: 60%; /* Adjust based on exit position */
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.1);
+        opacity: 0;
+        transition: all 2s ease-out;
+        z-index: 10;
+        pointer-events: none;
       }
-      .capsule.open {
-        transform: scale(0);
+
+      .capsule-appear {
+        opacity: 1;
+        top: 50%;
+        transform: translate(-50%, -50%) scale(1.5) rotate(720deg);
+      }
+
+      @keyframes smoke {
+        0% { opacity: 0; transform: scale(0.5); }
+        20% { opacity: 1; transform: scale(1.2); }
+        100% { opacity: 0; transform: scale(1.5); }
+      }
+      .smoke-pop {
+        animation: smoke 0.5s ease-out forwards;
       }
     </style>
   </head>
   <body class="bg-yellow-50 min-h-screen flex flex-col items-center justify-center p-4">
 
-    <div id="app" class="max-w-md w-full bg-white rounded-xl shadow-lg overflow-hidden p-6 text-center">
+    <div id="app" class="max-w-md w-full bg-white rounded-xl shadow-lg overflow-hidden p-6 text-center relative">
       <h1 class="text-2xl font-bold text-gray-800 mb-6">お楽しみガチャ</h1>
 
-      <div id="machine" class="mb-8 text-6xl cursor-pointer select-none">
-        🎁
+      <!-- ガチャマシーンエリア -->
+      <div class="relative w-64 h-64 mx-auto mb-8">
+        <!-- SVG Machine -->
+        <svg id="machine" viewBox="0 0 200 240" class="w-full h-full drop-shadow-xl" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="domeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#a5f3fc;stop-opacity:0.4" />
+              <stop offset="50%" style="stop-color:#a5f3fc;stop-opacity:0.1" />
+              <stop offset="100%" style="stop-color:#fff;stop-opacity:0.6" />
+            </linearGradient>
+            <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#fca5a5" />
+              <stop offset="100%" style="stop-color:#ef4444" />
+            </linearGradient>
+            <filter id="shadow">
+                <feDropShadow dx="2" dy="4" stdDeviation="2" flood-opacity="0.2"/>
+            </filter>
+          </defs>
+
+          <!-- Legs -->
+          <path d="M40 220 L40 235 M160 220 L160 235" stroke="#991b1b" stroke-width="8" stroke-linecap="round"/>
+
+          <!-- Base Body -->
+          <rect x="40" y="120" width="120" height="100" rx="10" fill="url(#bodyGrad)" stroke="#b91c1c" stroke-width="2"/>
+
+          <!-- Exit Hole -->
+          <rect x="70" y="190" width="60" height="20" rx="5" fill="#451a03"/>
+          <path d="M70 190 Q100 195 130 190" fill="none" stroke="#78350f" stroke-width="1" opacity="0.5"/>
+
+          <!-- Knob -->
+          <circle cx="100" cy="155" r="15" fill="#fbbf24" stroke="#d97706" stroke-width="2" filter="url(#shadow)"/>
+          <rect x="95" y="140" width="10" height="30" fill="#f59e0b" rx="2" transform="rotate(45 100 155)" />
+
+          <!-- Transparent Dome -->
+          <circle cx="100" cy="80" r="70" fill="url(#domeGrad)" stroke="#bae6fd" stroke-width="2"/>
+
+          <!-- Capsules inside -->
+          <circle cx="80" cy="90" r="10" fill="#facc15" stroke="#eab308" />
+          <circle cx="110" cy="100" r="10" fill="#60a5fa" stroke="#2563eb" />
+          <circle cx="120" cy="70" r="10" fill="#f472b6" stroke="#db2777" />
+          <circle cx="70" cy="60" r="10" fill="#4ade80" stroke="#16a34a" />
+          <circle cx="95" cy="50" r="10" fill="#a78bfa" stroke="#7c3aed" />
+
+          <!-- Highlights on Dome -->
+          <ellipse cx="80" cy="50" rx="20" ry="10" fill="#fff" opacity="0.4" transform="rotate(-30 80 50)"/>
+        </svg>
+
+        <!-- Hidden Capsule (Animated) -->
+        <div id="capsule" class="capsule-container w-32 h-32">
+           <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+             <defs>
+               <radialGradient id="capShine" cx="30%" cy="30%" r="50%">
+                 <stop offset="0%" style="stop-color:#fff;stop-opacity:0.8"/>
+                 <stop offset="100%" style="stop-color:#fff;stop-opacity:0"/>
+               </radialGradient>
+             </defs>
+             <!-- Top Half (Red) -->
+             <path d="M10 50 A40 40 0 0 1 90 50 Z" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
+             <!-- Bottom Half (Transparent/Clear) -->
+             <path d="M10 50 A40 40 0 0 0 90 50 Z" fill="#e0f2fe" fill-opacity="0.6" stroke="#7dd3fc" stroke-width="2"/>
+             <!-- Middle Line -->
+             <line x1="10" y1="50" x2="90" y2="50" stroke="#b91c1c" stroke-width="2"/>
+             <!-- Shine -->
+             <circle cx="35" cy="35" r="10" fill="url(#capShine)"/>
+           </svg>
+        </div>
+
+        <!-- Smoke Effect (Hidden) -->
+        <div id="smoke" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 pointer-events-none opacity-0">
+          <svg viewBox="0 0 100 100" fill="#e5e7eb">
+            <circle cx="50" cy="50" r="20" />
+            <circle cx="30" cy="40" r="15" />
+            <circle cx="70" cy="40" r="15" />
+            <circle cx="40" cy="70" r="12" />
+            <circle cx="60" cy="70" r="12" />
+            <circle cx="50" cy="20" r="10" />
+          </svg>
+        </div>
       </div>
 
       <button id="btn-pull" onclick="pullGacha()" disabled class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 rounded-full shadow-lg transition transform active:scale-95 disabled:opacity-50">
@@ -74,27 +169,61 @@
         }
       }
 
-      function pullGacha() {
+      async function pullGacha() {
         if (gachaItems.length === 0) return;
 
         const btn = document.getElementById('btn-pull');
         const machine = document.getElementById('machine');
+        const capsule = document.getElementById('capsule');
+        const smoke = document.getElementById('smoke');
         
-        // 演出開始
+        // UI初期化
         btn.disabled = true;
-        machine.classList.add('animate-shake');
         document.getElementById('result-area').classList.remove('hidden');
         document.getElementById('result-content').classList.add('hidden');
         document.getElementById('loading').classList.remove('hidden');
+        smoke.classList.remove('smoke-pop'); // リセット
 
-        // 抽選ロジック (重み付け抽選)
+        // アニメーション開始
+        machine.classList.add('animate-shake');
+        capsule.classList.add('capsule-appear');
+
+        // 抽選ロジック
         const item = drawItem();
 
-        // GASへ画像とテキストを取りに行く
-        google.script.run
-          .withSuccessHandler((assets) => showResult(item, assets))
-          .withFailureHandler(onError)
-          .getItemAsset(GACHA_FOLDER, item.image, item.description);
+        try {
+            // アニメーション完了待機 (2秒) と データ取得 を並行実行
+            const [assets] = await Promise.all([
+                fetchItemAsset(item),
+                wait(2000) // アニメーション時間
+            ]);
+
+            // アニメーション・データ取得完了後
+            machine.classList.remove('animate-shake');
+            capsule.classList.remove('capsule-appear');
+            smoke.classList.add('smoke-pop'); // 煙ポンッ
+
+            // 少し遅らせて結果表示
+            setTimeout(() => {
+                showResult(item, assets);
+            }, 300);
+
+        } catch (e) {
+            onError(e);
+        }
+      }
+
+      function wait(ms) {
+          return new Promise(resolve => setTimeout(resolve, ms));
+      }
+
+      function fetchItemAsset(item) {
+          return new Promise((resolve, reject) => {
+             google.script.run
+              .withSuccessHandler((assets) => resolve(assets))
+              .withFailureHandler((err) => reject(err))
+              .getItemAsset(GACHA_FOLDER, item.image, item.description);
+          });
       }
 
       function drawItem() {
@@ -110,10 +239,6 @@
       }
 
       function showResult(item, assets) {
-        const machine = document.getElementById('machine');
-        const btn = document.getElementById('btn-pull');
-        
-        machine.classList.remove('animate-shake');
         document.getElementById('loading').classList.add('hidden');
         
         if (assets.success) {
@@ -128,6 +253,7 @@
           alert('景品の取得に失敗しました');
         }
         
+        const btn = document.getElementById('btn-pull');
         btn.disabled = false;
         btn.innerText = "もう一度回す";
       }
@@ -136,6 +262,7 @@
         alert('エラーが発生しました: ' + e);
         document.getElementById('btn-pull').disabled = false;
         document.getElementById('machine').classList.remove('animate-shake');
+        document.getElementById('capsule').classList.remove('capsule-appear');
       }
     </script>
   </body>
