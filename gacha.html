@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <style>
+      /* ガチャ演出用CSS */
+      @keyframes shake {
+        0% { transform: rotate(0deg); }
+        25% { transform: rotate(5deg); }
+        50% { transform: rotate(0deg); }
+        75% { transform: rotate(-5deg); }
+        100% { transform: rotate(0deg); }
+      }
+      .animate-shake { animation: shake 0.5s infinite; }
+      
+      .capsule {
+        transition: transform 1s;
+      }
+      .capsule.open {
+        transform: scale(0);
+      }
+    </style>
+  </head>
+  <body class="bg-yellow-50 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div id="app" class="max-w-md w-full bg-white rounded-xl shadow-lg overflow-hidden p-6 text-center">
+      <h1 class="text-2xl font-bold text-gray-800 mb-6">✨ お楽しみガチャ ✨</h1>
+
+      <div id="machine" class="mb-8 text-6xl cursor-pointer select-none">
+        🎁
+      </div>
+
+      <button id="btn-pull" onclick="pullGacha()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 rounded-full shadow-lg transition transform active:scale-95 disabled:opacity-50">
+        ガチャを回す！
+      </button>
+
+      <div id="result-area" class="hidden mt-6 border-t pt-6">
+        <div id="loading" class="hidden text-gray-500">カプセルを開けています...</div>
+        
+        <div id="result-content" class="hidden">
+          <h2 id="item-name" class="text-xl font-bold text-purple-600 mb-2"></h2>
+          <img id="item-img" class="w-full h-48 object-contain mb-4 rounded-md bg-gray-100" />
+          <div id="item-desc" class="text-left text-gray-700 text-sm bg-gray-50 p-3 rounded markdown-body"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let gachaItems = []; // YAMLから読み込んだデータを格納
+      const GACHA_FOLDER = 'gacha1'; // 対象のガチャフォルダ名
+
+      // 初期化：ページ読み込み時にYAMLを取得
+      window.onload = function() {
+        google.script.run
+          .withSuccessHandler(onDataLoaded)
+          .withFailureHandler(onError)
+          .getGachaData(GACHA_FOLDER);
+      };
+
+      function onDataLoaded(res) {
+        if (res.success) {
+          // js-yamlを使ってテキストをオブジェクトに変換
+          gachaItems = jsyaml.load(res.yaml);
+          console.log("Loaded Items:", gachaItems);
+        } else {
+          alert("データの読み込みに失敗しました: " + res.error);
+        }
+      }
+
+      function pullGacha() {
+        if (gachaItems.length === 0) return;
+
+        const btn = document.getElementById('btn-pull');
+        const machine = document.getElementById('machine');
+        
+        // 演出開始
+        btn.disabled = true;
+        machine.classList.add('animate-shake');
+        document.getElementById('result-area').classList.remove('hidden');
+        document.getElementById('result-content').classList.add('hidden');
+        document.getElementById('loading').classList.remove('hidden');
+
+        // 抽選ロジック (重み付け抽選)
+        const item = drawItem();
+
+        // GASへ画像とテキストを取りに行く
+        google.script.run
+          .withSuccessHandler((assets) => showResult(item, assets))
+          .withFailureHandler(onError)
+          .getItemAsset(GACHA_FOLDER, item.image, item.description);
+      }
+
+      function drawItem() {
+        // 重み付け抽選の簡易実装
+        const totalWeight = gachaItems.reduce((sum, item) => sum + (item.weight || 1), 0);
+        let random = Math.random() * totalWeight;
+        
+        for (const item of gachaItems) {
+          random -= (item.weight || 1);
+          if (random < 0) return item;
+        }
+        return gachaItems[0];
+      }
+
+      function showResult(item, assets) {
+        const machine = document.getElementById('machine');
+        const btn = document.getElementById('btn-pull');
+        
+        machine.classList.remove('animate-shake');
+        document.getElementById('loading').classList.add('hidden');
+        
+        if (assets.success) {
+          const content = document.getElementById('result-content');
+          content.classList.remove('hidden');
+
+          document.getElementById('item-name').innerText = item.name;
+          document.getElementById('item-img').src = assets.imageData;
+          // markedを使ってMarkdownをHTMLに変換
+          document.getElementById('item-desc').innerHTML = marked.parse(assets.mdContent);
+        } else {
+          alert('景品の取得に失敗しました');
+        }
+        
+        btn.disabled = false;
+        btn.innerText = "もう一度回す";
+      }
+
+      function onError(e) {
+        alert('エラーが発生しました: ' + e);
+        document.getElementById('btn-pull').disabled = false;
+        document.getElementById('machine').classList.remove('animate-shake');
+      }
+    </script>
+  </body>
+</html>
