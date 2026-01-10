@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8">
     <base target="_top">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
@@ -28,13 +29,13 @@
   <body class="bg-yellow-50 min-h-screen flex flex-col items-center justify-center p-4">
 
     <div id="app" class="max-w-md w-full bg-white rounded-xl shadow-lg overflow-hidden p-6 text-center">
-      <h1 class="text-2xl font-bold text-gray-800 mb-6">✨ お楽しみガチャ ✨</h1>
+      <h1 class="text-2xl font-bold text-gray-800 mb-6">お楽しみガチャ</h1>
 
       <div id="machine" class="mb-8 text-6xl cursor-pointer select-none">
         🎁
       </div>
 
-      <button id="btn-pull" onclick="pullGacha()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 rounded-full shadow-lg transition transform active:scale-95 disabled:opacity-50">
+      <button id="btn-pull" onclick="pullGacha()" disabled class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 rounded-full shadow-lg transition transform active:scale-95 disabled:opacity-50">
         ガチャを回す！
       </button>
 
@@ -66,6 +67,8 @@
           // js-yamlを使ってテキストをオブジェクトに変換
           gachaItems = jsyaml.load(res.yaml);
           console.log("Loaded Items:", gachaItems);
+          // 読み込み成功時にボタンを有効化
+          document.getElementById('btn-pull').disabled = false;
         } else {
           alert("データの読み込みに失敗しました: " + res.error);
         }
