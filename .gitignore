@@ -1,0 +1,4 @@
+server.log
+verification/*.png
+__pycache__/
+*.pyc
