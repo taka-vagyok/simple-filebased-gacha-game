@@ -152,9 +152,37 @@
       let gachaItems = []; // YAMLから読み込んだデータを格納
       const GACHA_FOLDER = 'gacha1'; // 対象のガチャフォルダ名
 
+      // ==========================================
+      // Adapter for Local/Container Execution
+      // ==========================================
+      const isGasEnvironment = (typeof google !== 'undefined' && google.script && google.script.run);
+
+      const backend = isGasEnvironment ? google.script.run : {
+        withSuccessHandler: function(success) {
+            this._success = success;
+            return this;
+        },
+        withFailureHandler: function(failure) {
+            this._failure = failure;
+            return this;
+        },
+        getGachaData: function(folder) {
+            fetch(`/api/getGachaData?folder=${folder}`)
+                .then(r => r.json())
+                .then(data => this._success && this._success(data))
+                .catch(err => this._failure && this._failure(err));
+        },
+        getItemAsset: function(folder, img, desc) {
+            fetch(`/api/getItemAsset?folder=${folder}&image=${img}&description=${desc}`)
+                .then(r => r.json())
+                .then(data => this._success && this._success(data))
+                .catch(err => this._failure && this._failure(err));
+        }
+      };
+
       // 初期化：ページ読み込み時にYAMLを取得
       window.onload = function() {
-        google.script.run
+        backend
           .withSuccessHandler(onDataLoaded)
           .withFailureHandler(onError)
           .getGachaData(GACHA_FOLDER);
@@ -222,7 +250,7 @@
 
       function fetchItemAsset(item) {
           return new Promise((resolve, reject) => {
-             google.script.run
+             backend
               .withSuccessHandler((assets) => resolve(assets))
               .withFailureHandler((err) => reject(err))
               .getItemAsset(GACHA_FOLDER, item.image, item.description);

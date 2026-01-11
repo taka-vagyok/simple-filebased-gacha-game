@@ -1,4 +1,9 @@
-server.log
+# Node modules
+node_modules/
+docker/node_modules/
+
+# Logs
+*.log
+
+# Verification artifacts
 verification/*.png
-__pycache__/
-*.pyc
