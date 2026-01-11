@@ -45,15 +45,11 @@ cd <repository-name>
 ```
 
 ### 3. 起動
-Docker Compose または Docker コマンドで起動します。
+Docker Compose を使用して起動します。
 
-**Dockerコマンドでの実行例:**
 ```bash
-# イメージのビルド
-docker build -t gacha-app -f docker/Dockerfile docker/
-
-# コンテナの実行 (データフォルダをマウント)
-docker run -p 8000:8000 -v $(pwd)/gacha_data:/app/gacha_data gacha-app
+cd docker
+docker-compose up
 ```
 
 ブラウザで `http://localhost:8000` にアクセスしてください。

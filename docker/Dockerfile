@@ -2,12 +2,18 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Create directory structure for server
+WORKDIR /app/docker
+
 # Install dependencies
-COPY package.json ./
+COPY docker/package.json ./
 RUN npm install
 
 # Copy server code
-COPY server.js ./
+COPY docker/server.js ./
+
+# Copy frontend code to parent directory
+COPY gacha.html ../
 
 # Expose port
 EXPOSE 8000
