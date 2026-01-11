@@ -37,6 +37,29 @@ function getGachaData(gachaFolderName = 'gacha1') {
 }
 
 /**
+ * 共通リソース(SVGなど)を取得するAPI
+ * @param {string} filename - ファイル名 (例: 'machine.svg')
+ */
+function getCommonAsset(filename) {
+  try {
+    const folders = DriveApp.getFoldersByName(ROOT_FOLDER_NAME);
+    if (!folders.hasNext()) throw new Error('Root folder not found');
+    const root = folders.next();
+
+    const files = root.getFilesByName(filename);
+    if (!files.hasNext()) throw new Error('File not found: ' + filename);
+    const content = files.next().getBlob().getDataAsString();
+
+    return {
+      success: true,
+      content: content
+    };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+}
+
+/**
  * 特定の画像と説明文(MD)を取得するAPI
  * フロントエンドでガチャ抽選後に呼び出されます
  */

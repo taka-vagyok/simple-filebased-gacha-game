@@ -4,32 +4,45 @@ import time
 import os
 
 def generate_screenshots(page):
+    # Enable console logging
+    page.on("console", lambda msg: print(f"BROWSER CONSOLE: {msg.text}"))
+    page.on("pageerror", lambda err: print(f"BROWSER ERROR: {err}"))
+
     # Navigate to the local server
+    print("Navigating to localhost:8000...")
     page.goto("http://localhost:8000")
 
-    # 1. Wait for Title and Machine
+    # 1. Wait for Title
     heading = page.get_by_role("heading", level=1)
     expect(heading).to_have_text("お楽しみガチャ")
 
-    machine_svg = page.locator("svg#machine")
-    expect(machine_svg).to_be_visible()
+    # Check if machine-container exists
+    if page.locator("#machine-container").count() == 0:
+        print("ERROR: #machine-container not found in DOM")
+    else:
+        print("#machine-container found")
+
+    # Wait for Machine SVG to be injected
+    print("Waiting for svg#machine...")
+    # Increase timeout to 30s just in case
+    try:
+        machine_svg = page.locator("svg#machine")
+        expect(machine_svg).to_be_visible(timeout=10000)
+        print("svg#machine is visible!")
+    except Exception as e:
+        print("Timeout waiting for svg#machine.")
+        # Debug: dump html of container
+        print("Container inner HTML:")
+        print(page.locator("#machine-container").inner_html())
+        raise e
 
     # Wait for data load (button enabled)
     button = page.locator("#btn-pull")
-    expect(button).to_be_enabled(timeout=5000)
+    expect(button).to_be_enabled(timeout=10000)
 
-    # Screenshot of the Gacha Machine area specifically
-    # We can take a screenshot of the machine element or the whole page
-    # The requirement is "include gacha machine image" in readme.
-    # Let's take a screenshot of the machine container.
-
-    # Locate the container for the machine (parent div of svg)
-    machine_container = page.locator("#machine").locator("..")
-
-    # Ensure fonts are loaded/rendering
+    # Screenshot
+    machine_container = page.locator("#machine-container")
     time.sleep(1)
-
-    # Take screenshot
     output_path = "doc/gacha_machine.png"
     machine_container.screenshot(path=output_path)
     print(f"Screenshot saved to {output_path}")
