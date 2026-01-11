@@ -1,0 +1,12 @@
+<svg width="100" height="100" viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <path id="capsule-bottom" d="M -40 0 A 40 40 0 0 0 40 0 L -40 0 Z" />
+    <path id="capsule-top" d="M -40 0 A 40 40 0 0 1 40 0 L -40 0 Z" fill="#FFFFFF" opacity="0.5" />
+    <g id="capsule-model">
+      <use href="#capsule-bottom" class="capsule-color"/>
+      <use href="#capsule-top" />
+      <circle cx="0" cy="0" r="40" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="2"/>
+    </g>
+  </defs>
+  <use href="#capsule-model" class="capsule-color" fill="#FF5252" />
+</svg>

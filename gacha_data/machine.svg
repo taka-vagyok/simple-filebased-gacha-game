@@ -1,0 +1,48 @@
+<svg width="400" height="600" viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <path id="capsule-bottom" d="M -40 0 A 40 40 0 0 0 40 0 L -40 0 Z" />
+    <path id="capsule-top" d="M -40 0 A 40 40 0 0 1 40 0 L -40 0 Z" fill="#FFFFFF" opacity="0.5" />
+
+    <g id="capsule">
+      <use href="#capsule-bottom" class="capsule-color"/>
+      <use href="#capsule-top" />
+      <circle cx="0" cy="0" r="40" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="2"/>
+    </g>
+  </defs>
+
+  <rect x="50" y="250" width="300" height="300" rx="20" fill="#FFD54F" />
+  <rect x="70" y="270" width="260" height="260" rx="10" fill="#FFECB3" />
+
+  <path d="M 50 250 A 150 150 0 0 1 350 250 L 350 250 L 50 250 Z" fill="#E0F7FA" opacity="0.6" stroke="#B2EBF2" stroke-width="4"/>
+
+  <g clip-path="url(#dome-clip)">
+    <clipPath id="dome-clip">
+      <path d="M 50 250 A 150 150 0 0 1 350 250 Z" />
+    </clipPath>
+
+    <g transform="translate(120, 200) rotate(-20)">
+      <use href="#capsule" fill="#FF5252" /> </g>
+    <g transform="translate(260, 180) rotate(30)">
+      <use href="#capsule" fill="#448AFF" /> </g>
+    <g transform="translate(190, 130) rotate(10)">
+      <use href="#capsule" fill="#FFEB3B" /> </g>
+    <g transform="translate(200, 260) rotate(-10)">
+      <use href="#capsule" fill="#66BB6A" /> </g>
+    <g transform="translate(100, 140) rotate(45)">
+      <use href="#capsule" fill="#AB47BC" /> </g>
+    <g transform="translate(290, 240) rotate(-30)">
+      <use href="#capsule" fill="#FF9800" /> </g>
+    <g transform="translate(160, 280) rotate(15)">
+       <use href="#capsule" fill="#00BCD4" /> </g>
+  </g>
+
+  <rect x="100" y="320" width="200" height="120" rx="10" fill="#FFFFFF" />
+
+  <g id="machine-handle">
+      <circle cx="200" cy="380" r="40" fill="#E0E0E0" stroke="#BDC3C7" stroke-width="2"/>
+      <rect x="180" y="360" width="40" height="40" rx="5" fill="#95A5A6" />
+  </g>
+
+  <path d="M 120 480 Q 200 520 280 480 L 280 530 Q 200 570 120 530 Z" fill="#333" opacity="0.3" />
+  <rect x="120" y="460" width="160" height="60" rx="10" fill="#333333" />
+</svg>
