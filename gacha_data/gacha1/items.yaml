@@ -1,10 +1,10 @@
 - id: 1
   name: 伝説の剣
   weight: 10
-  image: sword.png
+  image: sword.jpg
   description: sword.md
 - id: 2
   name: 回復薬
   weight: 90
-  image: potion.png
+  image: potion.jpg
   description: potion.md
