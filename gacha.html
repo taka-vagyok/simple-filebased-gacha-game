@@ -172,7 +172,7 @@
         }
       };
 
-      window.onload = function() {
+      window.onload = () => {
         loadResources();
       };
 
@@ -218,7 +218,7 @@
 
           document.getElementById('btn-pull').disabled = false;
         } else {
-          alert("データの読み込みに失敗しました: " + res.error);
+          alert(`データの読み込みに失敗しました: ${res.error}`);
         }
       }
 
@@ -237,7 +237,7 @@
 
         try {
             // 1. Initial Draw (Weighted)
-            let tempItem = GachaLogic.drawItemByWeight(gachaItems);
+            const tempItem = GachaLogic.drawItemByWeight(gachaItems);
             let currentGradeKey = tempItem.grade;
 
             // Loop for promotion
@@ -372,7 +372,7 @@
       }
 
       function onError(e) {
-        alert('エラーが発生しました: ' + e);
+        alert(`エラーが発生しました: ${e}`);
         document.getElementById('btn-pull').disabled = false;
         const machine = document.getElementById('machine');
         if(machine) machine.classList.remove('animate-shake');

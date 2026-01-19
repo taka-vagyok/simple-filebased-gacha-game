@@ -15,11 +15,28 @@ on:
       - 'LICENSE'
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Run Biome Lint
+      run: npm run lint
+
   unit-test:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    # Skip if only HTML/CSS/Assets changed (logic not touched) - optional optimization,
-    # but strictly speaking logic tests should be fast enough to run always unless docs only.
+    needs: lint
     steps:
     - uses: actions/checkout@v4
 
