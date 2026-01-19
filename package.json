@@ -1,0 +1,14 @@
+{
+  "name": "gacha-app",
+  "version": "1.0.0",
+  "description": "Gacha Application",
+  "scripts": {
+    "test": "jest --coverage",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "@playwright/test": "^1.40.0"
+  }
+}

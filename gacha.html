@@ -6,6 +6,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="gacha-logic.js"></script>
     
     <style>
       body {
@@ -236,7 +237,7 @@
 
         try {
             // 1. Initial Draw (Weighted)
-            let tempItem = drawItemByWeight(gachaItems);
+            let tempItem = GachaLogic.drawItemByWeight(gachaItems);
             let currentGradeKey = tempItem.grade;
 
             // Loop for promotion
@@ -248,7 +249,7 @@
                 await playCapsuleAnimation(gradeConfig.color);
 
                 // Check Promotion
-                const nextGradeKey = checkPromotion(gradeConfig);
+                const nextGradeKey = GachaLogic.checkPromotion(gradeConfig);
 
                 if (nextGradeKey) {
                     // Promotion!
@@ -265,7 +266,7 @@
             const validItems = gachaItems.filter(i => i.grade === currentGradeKey);
             let finalItem;
             if (validItems.length > 0) {
-                finalItem = drawItemByWeight(validItems);
+                finalItem = GachaLogic.drawItemByWeight(validItems);
             } else {
                 console.error("No items found for grade:", currentGradeKey);
                 finalItem = tempItem; // Fallback
@@ -279,26 +280,6 @@
         } catch (e) {
             onError(e);
         }
-      }
-
-      function drawItemByWeight(items) {
-        const totalWeight = items.reduce((sum, item) => sum + (item.weight || 1), 0);
-        let random = Math.random() * totalWeight;
-
-        for (const item of items) {
-          random -= (item.weight || 1);
-          if (random < 0) return item;
-        }
-        return items[0];
-      }
-
-      function checkPromotion(gradeConfig) {
-          if (!gradeConfig.promotion) return null;
-          const rate = gradeConfig.promotion.rate;
-          if (Math.random() < rate) {
-              return gradeConfig.promotion.next_grade;
-          }
-          return null;
       }
 
       async function playCapsuleAnimation(colorName) {
