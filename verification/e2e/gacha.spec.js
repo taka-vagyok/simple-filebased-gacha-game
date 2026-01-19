@@ -8,7 +8,7 @@ test.describe('Gacha App E2E', () => {
 
     test('Initial display (Smoke Test)', async ({ page }) => {
         // Check Title
-        await expect(page.getByRole('heading', { level: 1 })).toHaveText('お楽しみガチャ');
+        await expect(page.getByRole('heading', { level: 1 })).toHaveText('伝説の装備ガチャ');
 
         // Check Machine SVG loaded
         const machine = page.locator('#machine');

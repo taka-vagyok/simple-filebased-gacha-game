@@ -81,13 +81,28 @@ Procedure for using files on Google Drive as a data source.
 ```
 .
 ├── gacha.html        # Frontend (Vanilla JS + Tailwind)
+├── gacha-logic.js    # Core Logic (Probability/Promotion) - Unit Tested
 ├── gacha_data/       # Data folder for local execution
 │   └── gacha1/       # Gacha Set 1
 ├── docker/           # Docker related files
 │   ├── Dockerfile
 │   └── server.js     # Simple server for local execution
 ├── gacha.js          # Backend code for GAS
+├── verification/     # Test Codes (Jest / Playwright)
 └── doc/              # Documents & Specs
+```
+
+### How to Run Tests
+```bash
+# Install Dependencies
+npm install
+
+# Unit Tests (Jest)
+npm test
+
+# E2E Tests (Playwright)
+# Requires docker-compose up in docker/ directory beforehand
+npm run test:e2e
 ```
 
 ### Technical Stack
