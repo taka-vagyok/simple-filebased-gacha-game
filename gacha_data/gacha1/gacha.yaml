@@ -1,0 +1,38 @@
+# ガチャ基本設定
+name: "伝説の装備ガチャ"
+description: "Sランク排出率2倍キャンペーン中！"
+
+# グレード定義 (演出と昇格ルール)
+grades:
+  G1:
+    name: "Normal"
+    color: "blue"        # カプセルの色
+    promotion:
+      next_grade: "G2"   # 昇格先
+      rate: 0.1          # 昇格確率 (10%)
+
+  G2:
+    name: "Rare"
+    color: "red"
+    promotion:
+      next_grade: "G3"
+      rate: 0.2          # 20%
+
+  G3:
+    name: "Super Rare"
+    color: "silver"
+    promotion:
+      next_grade: "G4"
+      rate: 0.3
+
+  G4:
+    name: "Ultra Rare"
+    color: "gold"
+    promotion:
+      next_grade: "G5"
+      rate: 0.5
+
+  G5:
+    name: "Legend"
+    color: "rainbow"
+    promotion: null      # これ以上昇格しない

@@ -12,19 +12,26 @@ app.use(express.static(path.join(__dirname, '..')));
 // Enable JSON parsing
 app.use(express.json());
 
-// API: Get Gacha Data (items.yaml)
+// API: Get Gacha Data (gacha.yaml & items.yaml)
 app.get('/api/getGachaData', (req, res) => {
     const folderName = req.query.folder || 'gacha1';
-    const yamlPath = path.join(DATA_ROOT, folderName, 'items.yaml');
+    const gachaYamlPath = path.join(DATA_ROOT, folderName, 'gacha.yaml');
+    const itemsYamlPath = path.join(DATA_ROOT, folderName, 'items.yaml');
 
     try {
-        if (!fs.existsSync(yamlPath)) {
-            throw new Error(`Config file not found: ${yamlPath}`);
+        if (!fs.existsSync(gachaYamlPath) || !fs.existsSync(itemsYamlPath)) {
+            throw new Error(`Config files not found in: ${folderName}`);
         }
-        const yamlContent = fs.readFileSync(yamlPath, 'utf8');
+        const gachaYamlContent = fs.readFileSync(gachaYamlPath, 'utf8');
+        const itemsYamlContent = fs.readFileSync(itemsYamlPath, 'utf8');
+
         // Simulate network delay
         setTimeout(() => {
-            res.json({ success: true, yaml: yamlContent });
+            res.json({
+                success: true,
+                gachaYaml: gachaYamlContent,
+                itemsYaml: itemsYamlContent
+            });
         }, 500);
     } catch (e) {
         res.json({ success: false, error: e.message });

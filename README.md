@@ -5,9 +5,9 @@
 シンプルで楽しい、子供から大人まで楽しめるWebガチャアプリです。
 コンテナ環境（Docker）で手軽に実行できるほか、Google Apps Script (GAS) と連携して Google Drive 上のデータを活用することも可能です。
 
-## 特徴
-*   **アニメーション演出**: SVGで描画されたガチャマシンが動く！回す！ポンッと出る！
-*   **設定が簡単**: `items.yaml` にアイテムリストを書くだけで、確率設定や画像の指定が可能。
+## 特徴 (v3.0)
+*   **連鎖昇格アニメーション**: 青→赤→金...とカプセルが次々と変化するドキドキの演出！
+*   **設定が簡単**: `gacha.yaml` でグレードや確率を、`items.yaml` でアイテムリストを管理。
 *   **Markdown対応**: 景品の説明文はMarkdown形式で記述でき、リッチなテキスト表示が可能。
 *   **ハイブリッド構成**: Dockerコンテナでのローカル実行と、サーバーレスなGAS運用の両方に対応。
 
@@ -25,23 +25,30 @@ cd <repository-name>
 
 ### 2. データの設定
 `gacha_data/gacha1/` フォルダにガチャの中身を設定します。
-デフォルトでサンプル（伝説の剣、回復薬）が入っています。
 
-*   `items.yaml`: 景品のリストと確率（weight）を定義します。
-*   画像ファイル (`.png` 推奨) と 説明ファイル (`.md`) を同じフォルダに置きます。
+*   **`gacha.yaml`**: グレード定義（色、昇格確率）を記述します。
+*   **`items.yaml`**: 景品のリストと所属グレードを記述します。
+*   画像ファイル (`.png`/`.jpg`) と 説明ファイル (`.md`) を同じフォルダに置きます。
+
+**gacha.yaml の例:**
+```yaml
+name: "伝説の装備ガチャ"
+grades:
+  G1:
+    color: "blue"
+    promotion:
+      next_grade: "G2"
+      rate: 0.1
+```
 
 **items.yaml の例:**
 ```yaml
 - id: 1
-  name: 伝説の剣
-  weight: 5
-  image: sword.png
-  description: sword.md
-- id: 2
-  name: 回復薬
-  weight: 95
-  image: potion.png
-  description: potion.md
+  name: "回復薬"
+  grade: "G1"
+  image: "potion.jpg"
+  description: "potion.md"
+  weight: 100
 ```
 
 ### 3. 起動
@@ -60,7 +67,7 @@ Google Drive上のファイルをデータソースとして利用する場合�
 
 1.  **Google Driveの準備**:
     *   ルートに `MyGachaApp` というフォルダを作成します。
-    *   その中に `gacha1` フォルダを作成し、`items.yaml` や画像などをアップロードします。
+    *   その中に `gacha1` フォルダを作成し、`gacha.yaml`, `items.yaml` や画像などをアップロードします。
 2.  **デプロイ**:
     *   `clasp` などを使って `gacha.js` と `gacha.html` を GAS プロジェクトにプッシュします。
 3.  **実行**:
@@ -71,7 +78,7 @@ Google Drive上のファイルをデータソースとして利用する場合�
 ### ディレクトリ構成
 ```
 .
-├── gacha.html        # フロントエンド (Vue.jsなどを使わないVanilla JS + Tailwind)
+├── gacha.html        # フロントエンド (Vanilla JS + Tailwind + js-yaml)
 ├── gacha_data/       # ローカル実行用のデータフォルダ
 │   └── gacha1/       # ガチャセット1
 ├── docker/           # Docker関連ファイル
@@ -82,6 +89,6 @@ Google Drive上のファイルをデータソースとして利用する場合�
 ```
 
 ### 技術スタック
-*   **Frontend**: HTML5, Tailwind CSS, SVG Animation
+*   **Frontend**: HTML5, Tailwind CSS, SVG Animation, js-yaml
 *   **Backend (Local)**: Node.js, Express
 *   **Backend (Cloud)**: Google Apps Script

@@ -25,7 +25,7 @@ docker-compose up -d
 *   **目的**: アプリケーションが正しく起動し、リソースがロードされているか確認する。
 *   **確認項目**:
     *   HTTPステータス 200 が返却されること。
-    *   タイトル「お楽しみガチャ」が表示されていること。
+    *   タイトル（例：「伝説の装備ガチャ」）が表示されていること。
     *   ガチャマシンのSVG画像（`#machine`）が表示されていること。
     *   コンソールにエラーが出ていないこと。
 
@@ -34,26 +34,34 @@ docker-compose up -d
 *   **確認項目**:
     *   ページ読み込み直後、「ガチャを回す！」ボタンが **無効 (disabled)** であること。
     *   API通信完了後、ボタンが **有効 (enabled)** に切り替わること。
-    *   `docker-compose` でマウントした `items.yaml` のデータが正しく読み込まれていること。
+    *   `docker-compose` でマウントした `gacha.yaml` および `items.yaml` のデータが正しく読み込まれていること。
 
-### 3.3. ガチャ実行フロー
-*   **目的**: ユーザーインタラクションとアニメーション、結果表示の整合性を確認する。
+### 3.3. ガチャ実行フローと連鎖昇格
+*   **目的**: ユーザーインタラクション、連鎖昇格アニメーション、結果表示の整合性を確認する。
 *   **手順**:
     1.  「ガチャを回す！」ボタンをクリックする。
 *   **確認項目**:
-    *   マシンが揺れるアニメーション (`.animate-shake`) が開始されること。
-    *   カプセルが出現するアニメーションが表示されること。
-    *   数秒後、結果画面 (`#result-area`) が表示されること。
-    *   結果画面にアイテム名、画像、説明文が表示されていること。
+    *   **ループ演出**:
+        *   マシンが揺れるアニメーション (`.animate-shake`) -> カプセル出現。
+        *   昇格する場合：「昇格チャンス！」等の表示 -> カプセル消滅 -> ループ再開。
+        *   昇格先のグレードに応じた色（例：青→赤）に変化すること。
+    *   **最終結果**:
+        *   結果画面 (`#result-area`) が表示されること。
+        *   アイテム名、画像、説明文が最終グレードの設定と一致していること。
+
+### 3.4. 確率検証（手動/統計）
+*   **目的**: `gacha.yaml` の設定通りに昇格が発生するか確認する。
+*   **手順**:
+    *   `gacha.yaml` の昇格確率を一時的に 1.0 (100%) にして、必ず昇格することを確認する。
+    *   逆に 0.0 (0%) にして、昇格しないことを確認する。
 
 ## 4. 自動テストの実装指針 (推奨)
 将来的にCI/CDパイプラインに組み込む場合、**Playwright** の使用を推奨します。
 
 ### サンプルコード (Python/Playwright)
-以下は、上記のシナリオを検証するためのスクリプト例です。
-
 ```python
 from playwright.sync_api import sync_playwright, expect
+import re
 
 def run():
     with sync_playwright() as p:
@@ -62,25 +70,21 @@ def run():
 
         # 1. アクセス
         page.goto("http://localhost:8000")
-        expect(page).to_have_title("お楽しみガチャ")
 
         # 2. 初期状態確認
         btn = page.locator("#btn-pull")
-
-        # データロード待ち (ボタンが有効になるのを待つ)
-        # 注意: ネットワーク遅延を考慮してタイムアウトを設定すること
         expect(btn).not_to_be_disabled(timeout=5000)
 
         # 3. ガチャ実行
         btn.click()
 
-        # 4. アニメーション確認 (クラスが付与されるか)
+        # 4. アニメーション確認
         machine = page.locator("#machine")
         expect(machine).to_have_class(re.compile(r"animate-shake"))
 
         # 5. 結果表示待機
         result = page.locator("#result-content")
-        expect(result).to_be_visible(timeout=5000)
+        expect(result).to_be_visible(timeout=10000)
 
         browser.close()
 
