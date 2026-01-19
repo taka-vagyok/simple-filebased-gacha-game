@@ -1,12 +1,21 @@
 const { test, expect } = require('@playwright/test');
 
 test.describe('Gacha App E2E', () => {
-    test.beforeEach(async ({ page }) => {
-        // Go to the app
-        await page.goto('/');
-    });
+    // Note: We do NOT use beforeEach goto here to allow individual tests
+    // to control navigation timing for network interception.
 
     test('Initial display (Smoke Test)', async ({ page }) => {
+        // Setup promise to wait for gacha-logic.js loading
+        const logicResponsePromise = page.waitForResponse(response =>
+            response.url().includes('gacha-logic.js') && response.status() === 200
+        );
+
+        // Go to the app
+        await page.goto('/');
+
+        // Verify logic file loaded
+        await logicResponsePromise;
+
         // Check Title
         await expect(page.getByRole('heading', { level: 1 })).toHaveText('伝説の装備ガチャ');
 
@@ -20,6 +29,7 @@ test.describe('Gacha App E2E', () => {
     });
 
     test('Gacha Execution Flow', async ({ page }) => {
+        await page.goto('/');
         const btn = page.locator('#btn-pull');
         await expect(btn).toBeEnabled({ timeout: 10000 });
 
