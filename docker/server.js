@@ -7,6 +7,12 @@ const port = 8000;
 // Configurable data path (defaults to ../gacha_data relative to this script)
 const DATA_ROOT = process.env.DATA_ROOT || path.join(__dirname, '../gacha_data');
 
+// Request Logging Middleware (Before static files)
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} ${req.method} ${req.url}`);
+    next();
+});
+
 app.use(express.static(path.join(__dirname, '..')));
 
 // Enable JSON parsing
