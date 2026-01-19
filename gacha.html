@@ -59,6 +59,21 @@
   </head>
   <body class="bg-yellow-50 min-h-screen flex flex-col items-center justify-center p-4">
 
+    <!-- Definitions for SVG Gradients -->
+    <svg width="0" height="0" class="absolute">
+      <defs>
+        <linearGradient id="rainbowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#ff0000;stop-opacity:1" />
+          <stop offset="16%" style="stop-color:#ff7f00;stop-opacity:1" />
+          <stop offset="33%" style="stop-color:#ffff00;stop-opacity:1" />
+          <stop offset="50%" style="stop-color:#00ff00;stop-opacity:1" />
+          <stop offset="66%" style="stop-color:#0000ff;stop-opacity:1" />
+          <stop offset="83%" style="stop-color:#4b0082;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#9400d3;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+    </svg>
+
     <div id="app" class="max-w-md w-full bg-white rounded-xl shadow-lg overflow-hidden p-6 text-center relative">
       <h1 class="text-2xl font-bold text-gray-800 mb-6">お楽しみガチャ</h1>
 
@@ -104,15 +119,22 @@
     </div>
 
     <script>
-      let gachaItems = []; // YAMLから読み込んだデータを格納
-      const GACHA_FOLDER = 'gacha1'; // 対象のガチャフォルダ名
-      let capsuleTemplate = ''; // Template string for capsule SVG
+      let gachaItems = [];
+      let gachaConfig = {}; // gacha.yaml data
+      const GACHA_FOLDER = 'gacha1';
+      let capsuleTemplate = '';
 
-      const CAPSULE_COLORS = ['#FF5252', '#448AFF', '#FFEB3B', '#66BB6A', '#AB47BC', '#FF9800', '#00BCD4'];
+      // 色マッピング (CSS色名やHex)
+      const COLOR_MAP = {
+          "blue": "#448AFF",
+          "red": "#FF5252",
+          "silver": "#C0C0C0",
+          "gold": "#FFD700",
+          "rainbow": "url(#rainbowGradient)", // SVG defs needed or handled specially
+          "green": "#66BB6A",
+          "purple": "#AB47BC"
+      };
 
-      // ==========================================
-      // Adapter for Local/Container Execution
-      // ==========================================
       const isGasEnvironment = (typeof google !== 'undefined' && google.script && google.script.run);
 
       const backend = isGasEnvironment ? google.script.run : {
@@ -139,9 +161,6 @@
                 .catch(err => this._failure && this._failure(err));
         },
         getCommonAsset: function(filename) {
-            // Local assumes gacha_data is served under root or similar path,
-            // but based on setup, we can access via 'gacha_data/...' if served static.
-            // Since server.js serves '..', 'gacha_data' is accessible.
             fetch(`gacha_data/${filename}`)
                 .then(r => {
                     if (!r.ok) throw new Error('File not found');
@@ -152,24 +171,20 @@
         }
       };
 
-      // 初期化：ページ読み込み時にYAMLとリソースを取得
       window.onload = function() {
         loadResources();
       };
 
       function loadResources() {
-          // Load Items
           backend
             .withSuccessHandler(onDataLoaded)
             .withFailureHandler(onError)
             .getGachaData(GACHA_FOLDER);
 
-          // Load Machine SVG
           backend
             .withSuccessHandler((res) => {
                 if(res.success) {
                     document.getElementById('machine-container').innerHTML = res.content;
-                    // Ensure the injected SVG has the id 'machine' if not already
                     const svg = document.querySelector('#machine-container svg');
                     if(svg) {
                         svg.id = 'machine';
@@ -179,12 +194,10 @@
             })
             .getCommonAsset('machine.svg');
 
-          // Load Capsule SVG Template
           backend
             .withSuccessHandler((res) => {
                 if(res.success) {
                     capsuleTemplate = res.content;
-                    // Initial render hidden
                     document.getElementById('capsule').innerHTML = capsuleTemplate;
                 }
             })
@@ -193,10 +206,15 @@
 
       function onDataLoaded(res) {
         if (res.success) {
-          // js-yamlを使ってテキストをオブジェクトに変換
-          gachaItems = jsyaml.load(res.yaml);
+          gachaConfig = jsyaml.load(res.gachaYaml);
+          gachaItems = jsyaml.load(res.itemsYaml);
+          console.log("Loaded Config:", gachaConfig);
           console.log("Loaded Items:", gachaItems);
-          // 読み込み成功時にボタンを有効化
+
+          if (gachaConfig.name) {
+              document.querySelector('h1').innerText = gachaConfig.name;
+          }
+
           document.getElementById('btn-pull').disabled = false;
         } else {
           alert("データの読み込みに失敗しました: " + res.error);
@@ -207,66 +225,136 @@
         if (gachaItems.length === 0) return;
 
         const btn = document.getElementById('btn-pull');
-        const machine = document.getElementById('machine');
-        const capsuleContainer = document.getElementById('capsule');
         const smoke = document.getElementById('smoke');
         
-        // UI初期化
         btn.disabled = true;
         document.getElementById('result-area').classList.remove('hidden');
         document.getElementById('result-content').classList.add('hidden');
         document.getElementById('loading').classList.remove('hidden');
+        document.getElementById('loading').innerText = "抽選中...";
         smoke.classList.remove('smoke-pop');
 
-        // 1. Prepare Capsule Color
-        const randomColor = CAPSULE_COLORS[Math.floor(Math.random() * CAPSULE_COLORS.length)];
-
-        // Re-inject capsule with new color or update existing
-        if (capsuleTemplate) {
-            capsuleContainer.innerHTML = capsuleTemplate;
-            const capsuleColorEl = capsuleContainer.querySelector('.capsule-color');
-            if(capsuleColorEl) {
-                capsuleColorEl.setAttribute('fill', randomColor);
-                // Also update stroke if needed, but fill is main
-            }
-        }
-
-        // 2. Start Animations
-        if(machine) {
-            machine.classList.add('animate-shake');
-            const handle = machine.querySelector('#machine-handle');
-            if(handle) {
-                handle.classList.remove('animate-spin-handle'); // Reset
-                void handle.offsetWidth; // Trigger reflow
-                handle.classList.add('animate-spin-handle');
-            }
-        }
-
-        capsuleContainer.classList.add('capsule-appear');
-
-        // 抽選ロジック
-        const item = drawItem();
-
         try {
-            // アニメーション完了待機 (2秒) と データ取得 を並行実行
-            const [assets] = await Promise.all([
-                fetchItemAsset(item),
-                wait(2000) // アニメーション時間
-            ]);
+            // 1. Initial Draw (Weighted)
+            let tempItem = drawItemByWeight(gachaItems);
+            let currentGradeKey = tempItem.grade;
 
-            // アニメーション・データ取得完了後
-            if(machine) machine.classList.remove('animate-shake');
-            capsuleContainer.classList.remove('capsule-appear');
-            smoke.classList.add('smoke-pop'); // 煙ポンッ
+            // Loop for promotion
+            while (true) {
+                const gradeConfig = gachaConfig.grades[currentGradeKey];
+                console.log("Current Grade:", currentGradeKey);
 
-            // 少し遅らせて結果表示
-            setTimeout(() => {
-                showResult(item, assets);
-            }, 300);
+                // Play Animation for this grade
+                await playCapsuleAnimation(gradeConfig.color);
+
+                // Check Promotion
+                const nextGradeKey = checkPromotion(gradeConfig);
+
+                if (nextGradeKey) {
+                    // Promotion!
+                    await showPromotionEffect();
+                    currentGradeKey = nextGradeKey;
+                    // Loop continues
+                } else {
+                    // Finalize
+                    break;
+                }
+            }
+
+            // 2. Final Re-draw based on final grade
+            const validItems = gachaItems.filter(i => i.grade === currentGradeKey);
+            let finalItem;
+            if (validItems.length > 0) {
+                finalItem = drawItemByWeight(validItems);
+            } else {
+                console.error("No items found for grade:", currentGradeKey);
+                finalItem = tempItem; // Fallback
+            }
+
+            // 3. Fetch Asset & Show Result
+            document.getElementById('loading').innerText = "アイテム取得中...";
+            const assets = await fetchItemAsset(finalItem);
+            showResult(finalItem, assets);
 
         } catch (e) {
             onError(e);
         }
+      }
+
+      function drawItemByWeight(items) {
+        const totalWeight = items.reduce((sum, item) => sum + (item.weight || 1), 0);
+        let random = Math.random() * totalWeight;
+
+        for (const item of items) {
+          random -= (item.weight || 1);
+          if (random < 0) return item;
+        }
+        return items[0];
+      }
+
+      function checkPromotion(gradeConfig) {
+          if (!gradeConfig.promotion) return null;
+          const rate = gradeConfig.promotion.rate;
+          if (Math.random() < rate) {
+              return gradeConfig.promotion.next_grade;
+          }
+          return null;
+      }
+
+      async function playCapsuleAnimation(colorName) {
+        const machine = document.getElementById('machine');
+        const capsuleContainer = document.getElementById('capsule');
+        const colorHex = COLOR_MAP[colorName] || colorName;
+
+        // Reset
+        capsuleContainer.classList.remove('capsule-appear');
+        capsuleContainer.style.opacity = '0';
+
+        // Update Color
+        if (capsuleTemplate) {
+            capsuleContainer.innerHTML = capsuleTemplate;
+            const capsuleColorEl = capsuleContainer.querySelector('.capsule-color');
+            if(capsuleColorEl) {
+                capsuleColorEl.setAttribute('fill', colorHex);
+            }
+        }
+
+        // Machine Shake
+        if(machine) {
+            machine.classList.add('animate-shake');
+            const handle = machine.querySelector('#machine-handle');
+            if(handle) {
+                handle.classList.remove('animate-spin-handle');
+                void handle.offsetWidth;
+                handle.classList.add('animate-spin-handle');
+            }
+        }
+
+        // Wait a bit for shake
+        await wait(500);
+
+        // Capsule Appear
+        if(machine) machine.classList.remove('animate-shake');
+        capsuleContainer.classList.add('capsule-appear');
+
+        // Wait for appear animation
+        await wait(1500);
+      }
+
+      async function showPromotionEffect() {
+          const loading = document.getElementById('loading');
+          const originalText = loading.innerText;
+          loading.innerText = "昇格チャンス！";
+          loading.classList.add('text-red-500', 'font-bold', 'text-xl');
+
+          const smoke = document.getElementById('smoke');
+          smoke.classList.add('smoke-pop'); // Smoke
+
+          await wait(1000); // Pause to see smoke/effect
+
+          smoke.classList.remove('smoke-pop');
+          loading.innerText = originalText;
+          loading.classList.remove('text-red-500', 'font-bold', 'text-xl');
       }
 
       function wait(ms) {
@@ -280,18 +368,6 @@
               .withFailureHandler((err) => reject(err))
               .getItemAsset(GACHA_FOLDER, item.image, item.description);
           });
-      }
-
-      function drawItem() {
-        // 重み付け抽選の簡易実装
-        const totalWeight = gachaItems.reduce((sum, item) => sum + (item.weight || 1), 0);
-        let random = Math.random() * totalWeight;
-        
-        for (const item of gachaItems) {
-          random -= (item.weight || 1);
-          if (random < 0) return item;
-        }
-        return gachaItems[0];
       }
 
       function showResult(item, assets) {

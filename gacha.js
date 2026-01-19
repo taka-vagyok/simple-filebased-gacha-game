@@ -22,14 +22,20 @@ function getGachaData(gachaFolderName = 'gacha1') {
     if (!targetFolders.hasNext()) throw new Error('Gacha folder not found');
     const folder = targetFolders.next();
 
+    // gacha.yaml の読み込み
+    const gachaFiles = folder.getFilesByName('gacha.yaml');
+    if (!gachaFiles.hasNext()) throw new Error('gacha.yaml not found');
+    const gachaYamlContent = gachaFiles.next().getBlob().getDataAsString();
+
     // items.yaml の読み込み
-    const files = folder.getFilesByName('items.yaml');
-    if (!files.hasNext()) throw new Error('items.yaml not found');
-    const yamlContent = files.next().getBlob().getDataAsString();
+    const itemsFiles = folder.getFilesByName('items.yaml');
+    if (!itemsFiles.hasNext()) throw new Error('items.yaml not found');
+    const itemsYamlContent = itemsFiles.next().getBlob().getDataAsString();
 
     return {
       success: true,
-      yaml: yamlContent
+      gachaYaml: gachaYamlContent,
+      itemsYaml: itemsYamlContent
     };
   } catch (e) {
     return { success: false, error: e.message };

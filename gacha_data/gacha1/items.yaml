@@ -1,10 +1,48 @@
-- id: 1
-  name: 伝説の剣
-  weight: 10
-  image: sword.jpg
-  description: sword.md
-- id: 2
-  name: 回復薬
-  weight: 90
-  image: potion.jpg
-  description: potion.md
+- id: 101
+  name: "木の棒"
+  grade: "G1"
+  image: "stick.jpg"
+  description: "stick.md"
+  weight: 50
+
+- id: 102
+  name: "回復薬"
+  grade: "G1"
+  image: "potion.jpg"
+  description: "potion.md"
+  weight: 50
+
+- id: 201
+  name: "銅の剣"
+  grade: "G2"
+  image: "copper_sword.jpg"
+  description: "copper_sword.md"
+  weight: 100
+
+- id: 301
+  name: "銀の盾"
+  grade: "G3"
+  image: "silver_shield.jpg"
+  description: "silver_shield.md"
+  weight: 100
+
+- id: 401
+  name: "金の鎧"
+  grade: "G4"
+  image: "gold_armor.jpg"
+  description: "gold_armor.md"
+  weight: 100
+
+- id: 501
+  name: "伝説の剣"
+  grade: "G5"
+  image: "sword.jpg"
+  description: "sword.md"
+  weight: 50
+
+- id: 502
+  name: "エクスカリバー"
+  grade: "G5"
+  image: "excalibur.jpg"
+  description: "excalibur.md"
+  weight: 50
