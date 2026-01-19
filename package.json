@@ -1,0 +1,20 @@
+{
+	"name": "gacha-app",
+	"version": "1.0.0",
+	"description": "Gacha Application",
+	"scripts": {
+		"test": "jest --coverage",
+		"test:watch": "jest --watch",
+		"test:changed": "jest --onlyChanged",
+		"test:e2e": "playwright test",
+		"lint": "biome lint .",
+		"format": "biome format .",
+		"check": "biome check ."
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.3.11",
+		"@playwright/test": "^1.40.0",
+		"jest": "^29.7.0",
+		"jest-environment-jsdom": "^29.7.0"
+	}
+}

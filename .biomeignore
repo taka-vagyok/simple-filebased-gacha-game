@@ -1,0 +1,6 @@
+gacha.js
+docker/**
+coverage/**
+test-results/**
+playwright-report/**
+verification/*.png

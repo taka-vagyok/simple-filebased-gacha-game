@@ -79,13 +79,28 @@ Google Drive上のファイルをデータソースとして利用する場合�
 ```
 .
 ├── gacha.html        # フロントエンド (Vanilla JS + Tailwind + js-yaml)
+├── gacha-logic.js    # コアロジック（確率計算・昇格判定） - Unitテスト対象
 ├── gacha_data/       # ローカル実行用のデータフォルダ
 │   └── gacha1/       # ガチャセット1
 ├── docker/           # Docker関連ファイル
 │   ├── Dockerfile
 │   └── server.js     # ローカル実行用簡易サーバー
 ├── gacha.js          # GAS用バックエンドコード
+├── verification/     # テストコード (Jest / Playwright)
 └── doc/              # ドキュメント・仕様書
+```
+
+### テスト実行方法
+```bash
+# 依存関係のインストール
+npm install
+
+# Unitテスト (Jest)
+npm test
+
+# E2Eテスト (Playwright)
+# 事前に docker/ で docker-compose up が必要です
+npm run test:e2e
 ```
 
 ### 技術スタック

@@ -14,6 +14,7 @@ COPY docker/server.js ./
 
 # Copy frontend code to parent directory
 COPY gacha.html ../
+COPY gacha-logic.js ../
 
 # Expose port
 EXPOSE 8000
