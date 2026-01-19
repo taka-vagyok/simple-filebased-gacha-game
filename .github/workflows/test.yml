@@ -3,13 +3,50 @@ name: Test
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'doc/**'
+      - '*.md'
+      - 'LICENSE'
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - 'doc/**'
+      - '*.md'
+      - 'LICENSE'
 
 jobs:
-  test:
+  unit-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # Skip if only HTML/CSS/Assets changed (logic not touched) - optional optimization,
+    # but strictly speaking logic tests should be fast enough to run always unless docs only.
+    steps:
+    - uses: actions/checkout@v4
 
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Run Unit Tests
+      run: npm test
+
+    - name: Upload Coverage
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage
+        path: coverage/
+
+  e2e-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: unit-test # Run after unit tests pass (fail fast), or remove for parallelism
+    # If we want parallelism, remove 'needs'. 'fail fast' via needs is good for resource saving.
     steps:
     - uses: actions/checkout@v4
 
@@ -24,9 +61,6 @@ jobs:
 
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
-
-    - name: Run Unit Tests
-      run: npm test
 
     - name: Start Application (Docker Compose)
       run: |
@@ -49,13 +83,6 @@ jobs:
       run: |
         cd docker
         docker compose down
-
-    - name: Upload Coverage
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage
-        path: coverage/
 
     - name: Upload Playwright Report
       if: failure()

@@ -4,6 +4,8 @@
   "description": "Gacha Application",
   "scripts": {
     "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:changed": "jest --onlyChanged",
     "test:e2e": "playwright test"
   },
   "devDependencies": {
