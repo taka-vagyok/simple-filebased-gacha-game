@@ -26,6 +26,10 @@ test.describe('Gacha App E2E', () => {
         // Check Button enabled (implies data loaded)
         const btn = page.locator('#btn-pull');
         await expect(btn).toBeEnabled({ timeout: 10000 });
+
+        // Capture screenshot for documentation (restoring python functionality)
+        const machineContainer = page.locator('#machine-container');
+        await machineContainer.screenshot({ path: 'doc/gacha_machine.png' });
     });
 
     test('Gacha Execution Flow', async ({ page }) => {
