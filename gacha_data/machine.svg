@@ -55,6 +55,37 @@
     </circle>
     <path d="M 20 550 L 30 530 L 40 550 L 50 530 L 60 550" stroke="#448AFF" stroke-width="3" fill="none"/>
     <path d="M 340 520 L 350 500 L 360 520 L 370 500 L 380 520" stroke="#66BB6A" stroke-width="3" fill="none"/>
+
+    <!-- Added Sparkles -->
+    <g id="sparkles">
+       <!-- Cross Stars -->
+       <path d="M 80 50 L 80 70 M 70 60 L 90 60" stroke="#FFF59D" stroke-width="2" opacity="0.8">
+         <animate attributeName="opacity" values="0.8;0.2;0.8" dur="2.5s" repeatCount="indefinite"/>
+       </path>
+       <path d="M 320 80 L 320 100 M 310 90 L 330 90" stroke="#E1F5FE" stroke-width="2" opacity="0.6">
+         <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" begin="0.5s"/>
+       </path>
+       <path d="M 40 150 L 40 160 M 35 155 L 45 155" stroke="#F48FB1" stroke-width="2" opacity="0.7">
+          <animate attributeName="opacity" values="0.7;0.3;0.7" dur="2s" repeatCount="indefinite" begin="1s"/>
+       </path>
+       <path d="M 360 40 L 360 50 M 355 45 L 365 45" stroke="#FFF59D" stroke-width="2" opacity="0.5">
+          <animate attributeName="opacity" values="0.5;1;0.5" dur="4s" repeatCount="indefinite"/>
+       </path>
+
+       <!-- Dots -->
+       <circle cx="150" cy="60" r="3" fill="#FFFFFF" opacity="0.6">
+          <animate attributeName="opacity" values="0.6;0;0.6" dur="3s" repeatCount="indefinite"/>
+       </circle>
+       <circle cx="250" cy="40" r="2" fill="#FFFFFF" opacity="0.8">
+          <animate attributeName="opacity" values="0.8;0.2;0.8" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+       </circle>
+       <circle cx="100" cy="120" r="4" fill="#B3E5FC" opacity="0.5">
+          <animate attributeName="opacity" values="0.5;0.9;0.5" dur="4s" repeatCount="indefinite"/>
+       </circle>
+       <circle cx="300" cy="120" r="3" fill="#F8BBD0" opacity="0.5">
+          <animate attributeName="opacity" values="0.5;0.9;0.5" dur="3.5s" repeatCount="indefinite" begin="0.8s"/>
+       </circle>
+    </g>
   </g>
 
   <g filter="url(#drop-shadow)" transform="translate(0, 20)">
