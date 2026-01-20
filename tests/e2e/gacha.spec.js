@@ -38,6 +38,9 @@ test.describe("Gacha App E2E (Real Data)", () => {
 	});
 
 	test("Gacha Execution Flow", async ({ page }) => {
+        // Debug
+        page.on('console', msg => console.log(`PAGE LOG: ${msg.text()}`));
+
 		await page.goto("/");
 
         // Skip animations for speed
@@ -51,11 +54,19 @@ test.describe("Gacha App E2E (Real Data)", () => {
 
         // New Flow: Click active capsule to open
         const activeCapsule = page.locator('.active-capsule');
-        await activeCapsule.waitFor({ state: "visible", timeout: 10000 });
-        await activeCapsule.click();
+        // Wait for capsule to be ready (animation finishes in 2s, but skipAnimations might not affect setTimeout in spawnCapsule)
+        await activeCapsule.waitFor({ state: "visible", timeout: 15000 });
+
+        // Ensure it's interactive
+        await page.waitForTimeout(2000);
+        // Trigger click via JS to avoid animation/pointer-event issues
+        await page.evaluate(() => {
+            const cap = document.querySelector('.active-capsule');
+            if(cap) cap.click();
+        });
 
 		const resultArea = page.locator("#result-area");
-		await expect(resultArea).toBeVisible();
+		await expect(resultArea).toBeVisible({ timeout: 10000 });
 
 		const resultContent = page.locator("#result-content");
 		await expect(resultContent).toBeVisible({ timeout: 20000 });

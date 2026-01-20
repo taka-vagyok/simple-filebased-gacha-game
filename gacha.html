@@ -153,8 +153,8 @@
   </defs>
 
   <g opacity="0.5">
-    <circle cx="50" cy="100" r="10" fill="#FFD700"><animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/></circle>
-    <circle cx="350" cy="150" r="15" fill="#FF4081"><animate attributeName="opacity" values="0.5;1;0.5" dur="4s" repeatCount="indefinite" begin="1s"/></circle>
+    <circle id="lamp-0" cx="50" cy="100" r="10" fill="#FFD700"><animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/></circle>
+    <circle id="lamp-1" cx="350" cy="150" r="15" fill="#FF4081"><animate attributeName="opacity" values="0.5;1;0.5" dur="4s" repeatCount="indefinite" begin="1s"/></circle>
     <path d="M 20 550 L 30 530 L 40 550 L 50 530 L 60 550" stroke="#448AFF" stroke-width="3" fill="none"/>
     <path d="M 340 520 L 350 500 L 360 520 L 370 500 L 380 520" stroke="#66BB6A" stroke-width="3" fill="none"/>
   </g>
@@ -314,15 +314,27 @@
             setGachaState('waiting_for_open');
             await waitForClick(activeCapsule); // Wait for user to click the capsule
 
-            // Check Promotion
-            let gradeConfig = gachaConfig.grades[currentGradeKey];
-            const nextGradeKey = GachaLogic.checkPromotion(gradeConfig); // Or fake promotion?
+            // Chain Promotion Loop
+            while (true) {
+                let gradeConfig = gachaConfig.grades[currentGradeKey];
+                const nextGradeKey = GachaLogic.checkPromotion(gradeConfig);
 
-            if (nextGradeKey || GachaLogic.checkFakePromotion(gradeConfig)) {
-                // Promotion Effect!
-                setGachaState('promoting');
-                await playPromotionEffect(activeCapsule, nextGradeKey ? gachaConfig.grades[nextGradeKey].color : gradeConfig.color);
-                if (nextGradeKey) currentGradeKey = nextGradeKey;
+                if (nextGradeKey) {
+                    // Real Promotion
+                    setGachaState('promoting');
+                    await playPromotionEffect(activeCapsule, gachaConfig.grades[nextGradeKey].color);
+                    currentGradeKey = nextGradeKey;
+                    // Loop continues to check next promotion
+                } else if (GachaLogic.checkFakePromotion(gradeConfig)) {
+                    // Fake Promotion (End of chain)
+                    setGachaState('promoting');
+                    console.log("Fake Promotion Triggered!");
+                    await playPromotionEffect(activeCapsule, gradeConfig.color); // Color doesn't change, just effect
+                    break;
+                } else {
+                    // No promotion
+                    break;
+                }
             }
 
             // Final Open

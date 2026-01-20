@@ -31,6 +31,9 @@ test.describe('Deterministic Gacha Scenarios', () => {
 
     await page.click('#btn-pull');
 
+    // Click active capsule
+    await page.locator('.active-capsule').click();
+
     await expect(page.locator('#item-name')).toHaveText('Rainbow Sword');
   });
 
@@ -59,7 +62,7 @@ test.describe('Deterministic Gacha Scenarios', () => {
     // For now, let's just verify the new SVG structure exists as expected by the new code.
 
     const lamp0 = page.locator('#lamp-0');
-    const energyGlowEllipse = page.locator('#energy-glow-element');
+    const energyGlowEllipse = page.locator('#energy-glow');
 
     await expect(lamp0).toBeAttached();
     await expect(energyGlowEllipse).toBeAttached();
@@ -95,6 +98,9 @@ test.describe('Deterministic Gacha Scenarios', () => {
     page.on('console', msg => logs.push(msg.text()));
 
     await page.click('#btn-pull');
+
+    // Click active capsule
+    await page.locator('.active-capsule').click();
 
     await expect(page.locator('#item-name')).toHaveText('Blue Shield');
 
