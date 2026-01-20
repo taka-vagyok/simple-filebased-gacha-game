@@ -50,8 +50,8 @@ test("Generate Gacha GIF", async ({ page }) => {
 	// Loop controls
 	let capsuleAppeared = false;
 	let appearTime = 0;
-	const POST_APPEAR_DURATION = 1500; // Capture 1.5s after capsule appears to show it settling
-	const MAX_DURATION = 8000; // Safety timeout
+	const POST_APPEAR_DURATION = 4000; // Capture 4s after capsule appears (covers 2s transition + hold)
+	const MAX_DURATION = 15000; // Increased Safety timeout
 
 	while (true) {
 		const now = Date.now();
