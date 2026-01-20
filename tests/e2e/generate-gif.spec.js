@@ -5,6 +5,9 @@ const GIFEncoder = require("gif-encoder-2");
 const { PNG } = require("pngjs");
 
 test("Generate Gacha GIF", async ({ page }) => {
+	// Debug logging
+	page.on('console', msg => console.log(`PAGE LOG: ${msg.text()}`));
+
 	// 1. Navigate to the page
 	await page.goto("/");
 
@@ -16,9 +19,8 @@ test("Generate Gacha GIF", async ({ page }) => {
 	// Wait for machine to appear
 	await page.locator("#machine").waitFor({ state: "visible", timeout: 10000 });
 
-	// Note: We no longer manually inject colors because the app now handles it (Spec-Driven).
-	// But we should verify they are colorful in a real test?
-	// For GIF generation, we just trust the app.
+	// Extra wait to ensure rendering is settled before action
+	await page.waitForTimeout(2000);
 
 	// 2. Force Grade 5 (Rainbow) Result
 	// We override the gachaItems to only contain one G5 item.

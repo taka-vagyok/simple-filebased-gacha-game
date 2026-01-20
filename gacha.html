@@ -284,8 +284,14 @@
       function randomizeMachineCapsules(svg) {
           if (!svg) return;
           // Find the group containing the capsule uses (based on clip-path structure in machine.svg)
-          // Look for 'use' elements that reference '#capsule'
-          const uses = svg.querySelectorAll('use[href="#capsule"]');
+          // Look for 'use' elements that reference '#capsule' or are inside the dome clip-path
+          let uses = svg.querySelectorAll('use[href="#capsule"]');
+          if (uses.length === 0) {
+              // Fallback for some browsers/contexts where href might be different or selector fails
+              uses = svg.querySelectorAll('g[clip-path] use');
+          }
+          console.log(`[Gacha] Found ${uses.length} internal capsules to colorize.`);
+
           const colors = Object.values(COLOR_MAP).filter(c => !c.includes('url')); // Exclude rainbow/gradients for inside
 
           uses.forEach(use => {
