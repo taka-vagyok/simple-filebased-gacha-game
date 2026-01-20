@@ -39,6 +39,7 @@ E2Eテストでは、以下の技術を用いて安定性と実行速度を向�
 - **API Mocking**: サーバーのレスポンスをモックし、遅延を排除するとともに、任意のガチャデータをテスト可能にします。
 - **Animation Skipping**: `window.wait` 関数をオーバーライドし、演出待ち時間をスキップします。
 - **Randomness Override**: `Math.random` をモックし、確率的な振る舞い（昇格など）を決定論的にテストします。
+- **State Tracking Hooks**: `body` 要素の `data-gacha-status` 属性（`idle`, `shaking`, `result_shown` 等）を監視することで、アニメーションの進行状況に基づいた安定したキャプチャや検証を行います。
 
 ## 3. テストシナリオ
 

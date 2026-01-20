@@ -28,6 +28,9 @@
       }
       .animate-shake { animation: shake 0.1s infinite; }
 
+      /* Testability Hook */
+      body[data-gacha-status] { /* Hook for E2E tests to detect state */ }
+
       @keyframes spin-handle {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
@@ -238,7 +241,14 @@
         }
       };
 
+      // State tracking for E2E tests
+      function setGachaState(status) {
+          document.body.dataset.gachaStatus = status;
+          console.log(`[Gacha State] ${status}`);
+      }
+
       window.onload = () => {
+        setGachaState('loading');
         loadResources();
       };
 
@@ -291,8 +301,10 @@
           }
 
           document.getElementById('btn-pull').disabled = false;
+          setGachaState('idle');
         } else {
           alert(`データの読み込みに失敗しました: ${res.error}`);
+          setGachaState('error');
         }
       }
 
@@ -308,6 +320,7 @@
         document.getElementById('loading').classList.remove('hidden');
         document.getElementById('loading').innerText = "抽選中...";
         smoke.classList.remove('smoke-pop');
+        setGachaState('processing');
 
         try {
             // 1. Initial Draw (Weighted)
@@ -320,6 +333,7 @@
                 console.log("Current Grade:", currentGradeKey);
 
                 // Play Animation for this grade
+                setGachaState('shaking');
                 await playCapsuleAnimation(gradeConfig.color);
 
                 // Check Promotion
@@ -327,6 +341,7 @@
 
                 if (nextGradeKey) {
                     // Promotion!
+                    setGachaState('promoting');
                     await showPromotionEffect();
                     currentGradeKey = nextGradeKey;
                     // Loop continues
@@ -397,6 +412,7 @@
         // Capsule Appear
         if(machine) machine.classList.remove('animate-shake');
         capsuleContainer.classList.add('capsule-appear');
+        setGachaState('capsule_appearing');
 
         // Wait for appear animation
         await wait(1500);
@@ -475,6 +491,7 @@
         const btn = document.getElementById('btn-pull');
         btn.disabled = false;
         btn.innerText = "もう一度回す";
+        setGachaState('result_shown');
       }
 
       function onError(e) {
@@ -483,6 +500,7 @@
         const machine = document.getElementById('machine');
         if(machine) machine.classList.remove('animate-shake');
         document.getElementById('capsule').classList.remove('capsule-appear');
+        setGachaState('error');
       }
 
       function showCredits() {

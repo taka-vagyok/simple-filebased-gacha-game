@@ -9,16 +9,13 @@ test("Generate Gacha GIF", async ({ page }) => {
 	await page.setViewportSize({ width: 390, height: 844 });
 	await page.goto("/");
 
-	// Wait for the button to be enabled, which signifies data is loaded
-	const btn = page.locator("#btn-pull");
-	await btn.waitFor({ state: "visible", timeout: 10000 });
-	await test.expect(btn).toBeEnabled({ timeout: 10000 });
+	// Helper to check state
+	const getGachaState = async () => {
+		return await page.evaluate(() => document.body.dataset.gachaStatus);
+	};
 
-	// Wait for machine to appear
-	await page.locator("#machine").waitFor({ state: "visible", timeout: 10000 });
-
-	// Extra wait to ensure rendering is settled before action
-	await page.waitForTimeout(2000);
+	// Wait for idle state (loaded)
+	await page.waitForFunction(() => document.body.dataset.gachaStatus === 'idle');
 
 	// 2. Force Grade 5 (Rainbow) Result
 	// We override the gachaItems to only contain one G5 item.
@@ -38,55 +35,52 @@ test("Generate Gacha GIF", async ({ page }) => {
 
 	// 3. Trigger Action
 	console.log("Starting action...");
+	const btn = page.locator("#btn-pull");
 	await btn.click();
 
-	// 4. Capture Loop
+	// 4. Capture Loop (State-Driven)
 	console.log("Starting capture...");
 	const frames = [];
-	const delays = []; // Track actual delay per frame
+	const delays = [];
 	const startTime = Date.now();
 	let lastFrameTime = startTime;
 
-	// Loop controls
-	let capsuleAppeared = false;
-	let appearTime = 0;
-	const POST_APPEAR_DURATION = 4000; // Capture 4s after capsule appears (covers 2s transition + hold)
-	const MAX_DURATION = 15000; // Increased Safety timeout
+	let hasShaken = false;
+	let hasAppeared = false;
+	const POST_RESULT_FRAMES = 10; // Frames to capture after result is shown
+	let postResultCount = 0;
 
+	// Loop until 'result_shown' + buffer
 	while (true) {
+		const state = await getGachaState();
+
+		// Optional: Only start recording when 'processing' or 'shaking' starts?
+		// But capturing the click reaction is good.
+
+		const buffer = await page.screenshot();
 		const now = Date.now();
-		if (now - startTime > MAX_DURATION) {
-			console.log("Max duration exceeded.");
-			break;
-		}
+		const delay = now - lastFrameTime;
+		lastFrameTime = now;
 
-		// Check if capsule has appeared
-		const isAppeared = await page.evaluate(() => {
-			const c = document.getElementById('capsule');
-			return c && c.classList.contains('capsule-appear');
-		});
-
-		if (isAppeared && !capsuleAppeared) {
-			console.log("Capsule appearance detected!");
-			capsuleAppeared = true;
-			appearTime = now;
-		}
-
-		// Stop condition: 1.5s after appearance
-		if (capsuleAppeared && (now - appearTime > POST_APPEAR_DURATION)) {
-			console.log("Post-appear duration captured.");
-			break;
-		}
-
-		// Capture Frame
-		const buffer = await page.screenshot(); // This takes time!
 		frames.push(buffer);
-
-		// Calculate delay for this frame (time since last frame start)
-		const frameEnd = Date.now();
-		const delay = frameEnd - lastFrameTime;
 		delays.push(delay);
-		lastFrameTime = frameEnd;
+
+		if (state === 'shaking') hasShaken = true;
+		if (state === 'capsule_appearing') hasAppeared = true;
+
+		if (state === 'result_shown') {
+			postResultCount++;
+			if (postResultCount > POST_RESULT_FRAMES) {
+				console.log("Result shown and buffer captured. Stopping.");
+				break;
+			}
+		}
+
+		// Timeout safety (20s)
+		if (now - startTime > 20000) {
+			console.log("Timeout reached.");
+			break;
+		}
 	}
 	console.log(`Captured ${frames.length} frames.`);
 
@@ -98,7 +92,6 @@ test("Generate Gacha GIF", async ({ page }) => {
 	}
 
 	const firstFrame = PNG.sync.read(frames[0]);
-	// Ensure dimensions match viewport or frame size (should be same)
 	const encoder = new GIFEncoder(firstFrame.width, firstFrame.height);
 	const outputFilePath = path.join(__dirname, "../../doc/gacha_demo.gif");
 
@@ -109,11 +102,9 @@ test("Generate Gacha GIF", async ({ page }) => {
 	encoder.setRepeat(0);
 	encoder.setQuality(10);
 
-	// Add frames with their dynamic delays
 	for (let i = 0; i < frames.length; i++) {
 		const png = PNG.sync.read(frames[i]);
 		const delayMs = delays[i];
-		// gif-encoder-2 takes delay in ms
 		encoder.setDelay(delayMs);
 		encoder.addFrame(png.data);
 	}
