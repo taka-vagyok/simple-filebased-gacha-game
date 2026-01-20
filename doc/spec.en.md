@@ -97,3 +97,22 @@ This document defines the behavior of the Gacha App using Google Apps Script (GA
 # Note to Engineers
 *   **GAS / Node.js Dual Support**: `getGachaData` must maintain the same interface in both GAS environment and local Node.js environment.
 *   **Async Processing**: Pay attention to timing control of animation and data fetching (Promise control).
+
+# Feature: Security (v3.0.1 Added)
+  To enhance the robustness of the application, the following security measures are implemented.
+
+  Spec: Path Traversal Prevention (Server)
+    The Server must validate the requested file path in `getGachaData` and `getItemAsset` APIs.
+
+    IF parameters (`folder`, `image`, etc.) contain parent directory traversal (`..`) or attempt to access outside `DATA_ROOT`
+    THEN Server must return an error and must not return the file content.
+
+  Spec: Static File Access Restriction (Server)
+    The Server must only expose resources under `gacha_data/` and the minimal JS files necessary for the app to run.
+    Direct access to server source code (`server.js`) or configuration files (`package.json`) must be prohibited (404 Not Found).
+
+  Spec: XSS (Cross-Site Scripting) Prevention (Client)
+    The Client must sanitize the HTML converted from Markdown before displaying it.
+
+    IF `items.yaml` or Markdown files contain malicious code such as `<script>` tags
+    THEN `DOMPurify` or similar must be used to neutralize them and prevent script execution.

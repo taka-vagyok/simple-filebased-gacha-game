@@ -6,6 +6,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.8/purify.min.js"></script>
     <script src="gacha-logic.js"></script>
     
     <style>
@@ -366,8 +367,10 @@
 
           document.getElementById('item-name').innerText = item.name;
           document.getElementById('item-img').src = assets.imageData;
-          // markedを使ってMarkdownをHTMLに変換
-          document.getElementById('item-desc').innerHTML = marked.parse(assets.mdContent);
+          // markedを使ってMarkdownをHTMLに変換し、DOMPurifyでサニタイズ
+          const rawHtml = marked.parse(assets.mdContent);
+          const cleanHtml = DOMPurify.sanitize(rawHtml);
+          document.getElementById('item-desc').innerHTML = cleanHtml;
         } else {
           alert('景品の取得に失敗しました');
         }
