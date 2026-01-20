@@ -257,6 +257,12 @@
                     currentGradeKey = nextGradeKey;
                     // Loop continues
                 } else {
+                    // Check Fake Promotion
+                    if (GachaLogic.checkFakePromotion(gradeConfig)) {
+                        console.log("Fake Promotion Triggered!");
+                        await showPromotionEffect();
+                        // Do NOT update currentGradeKey
+                    }
                     // Finalize
                     break;
                 }

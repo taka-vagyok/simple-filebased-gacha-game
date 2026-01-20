@@ -59,4 +59,35 @@ describe("GachaLogic", () => {
 			expect(GachaLogic.checkPromotion({})).toBeNull();
 		});
 	});
+
+	describe("checkFakePromotion", () => {
+		test("should return true if random < fake_rate", () => {
+			const config = {
+				promotion: { fake_rate: 0.3 },
+			};
+			jest.spyOn(Math, "random").mockReturnValue(0.2);
+			expect(GachaLogic.checkFakePromotion(config)).toBe(true);
+			jest.restoreAllMocks();
+		});
+
+		test("should return false if random >= fake_rate", () => {
+			const config = {
+				promotion: { fake_rate: 0.3 },
+			};
+			jest.spyOn(Math, "random").mockReturnValue(0.3);
+			expect(GachaLogic.checkFakePromotion(config)).toBe(false);
+			jest.restoreAllMocks();
+		});
+
+		test("should return false if fake_rate is missing", () => {
+			const config = {
+				promotion: { rate: 0.5 },
+			};
+			expect(GachaLogic.checkFakePromotion(config)).toBe(false);
+		});
+
+		test("should return false if promotion config is missing", () => {
+			expect(GachaLogic.checkFakePromotion({})).toBe(false);
+		});
+	});
 });

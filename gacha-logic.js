@@ -30,8 +30,15 @@
 		return null;
 	}
 
+	function checkFakePromotion(gradeConfig) {
+		if (!gradeConfig.promotion || !gradeConfig.promotion.fake_rate) return false;
+		const rate = gradeConfig.promotion.fake_rate;
+		return Math.random() < rate;
+	}
+
 	return {
 		drawItemByWeight: drawItemByWeight,
 		checkPromotion: checkPromotion,
+		checkFakePromotion: checkFakePromotion,
 	};
 });
