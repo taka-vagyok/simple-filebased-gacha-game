@@ -57,7 +57,7 @@
     <path d="M 340 520 L 350 500 L 360 520 L 370 500 L 380 520" stroke="#66BB6A" stroke-width="3" fill="none"/>
   </g>
 
-  <g filter="url(#m-drop-shadow)" transform="translate(0, 20)">
+  <g id="machine-body" filter="url(#m-drop-shadow)" transform="translate(0, 20)">
     <rect x="40" y="240" width="320" height="320" rx="30" fill="url(#m-body-grad)" stroke="#FF8F00" stroke-width="4" />
 
     <rect x="30" y="280" width="20" height="240" rx="5" fill="#FFB300" stroke="#FF8F00" stroke-width="2"/>
@@ -98,9 +98,9 @@
       <rect x="180" y="360" width="40" height="40" rx="5" fill="#C2185B" opacity="0.5"/>
     </g>
 
-    <path d="M 110 480 Q 200 530 290 480 L 290 540 Q 200 580 110 540 Z" fill="#3E2723" stroke="#5D4037" stroke-width="3" filter="url(#m-drop-shadow)"/>
+    <path id="exit-hole" d="M 110 480 Q 200 530 290 480 L 290 540 Q 200 580 110 540 Z" fill="#3E2723" stroke="#5D4037" stroke-width="3" filter="url(#m-drop-shadow)"/>
     <rect x="120" y="470" width="160" height="10" rx="5" fill="#5D4037"/>
-    <ellipse cx="200" cy="510" rx="80" ry="20" fill="url(#m-energy-glow)" opacity="0.6">
+    <ellipse id="energy-glow" cx="200" cy="510" rx="80" ry="20" fill="url(#m-energy-glow)" opacity="0.6">
         <animate attributeName="opacity" values="0.6;0.8;0.6" dur="1.5s" repeatCount="indefinite"/>
     </ellipse>
   </g>

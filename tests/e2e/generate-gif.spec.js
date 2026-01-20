@@ -68,6 +68,17 @@ test("Generate Gacha GIF", async ({ page }) => {
 		if (state === 'shaking') hasShaken = true;
 		if (state === 'capsule_appearing') hasAppeared = true;
 
+		// New Interaction: Click capsule to open
+		if (state === 'waiting_for_open') {
+			// Click the active capsule
+			try {
+				await page.click('.active-capsule', { timeout: 1000 });
+				console.log("Clicked active capsule.");
+			} catch (e) {
+				// Might have already clicked or transition fast
+			}
+		}
+
 		if (state === 'result_shown') {
 			postResultCount++;
 			if (postResultCount > POST_RESULT_FRAMES) {

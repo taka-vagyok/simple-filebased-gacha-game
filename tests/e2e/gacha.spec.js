@@ -49,6 +49,11 @@ test.describe("Gacha App E2E (Real Data)", () => {
 		await btn.click();
 		await expect(btn).toBeDisabled();
 
+        // New Flow: Click active capsule to open
+        const activeCapsule = page.locator('.active-capsule');
+        await activeCapsule.waitFor({ state: "visible", timeout: 10000 });
+        await activeCapsule.click();
+
 		const resultArea = page.locator("#result-area");
 		await expect(resultArea).toBeVisible();
 
