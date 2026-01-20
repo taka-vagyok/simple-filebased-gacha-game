@@ -5,7 +5,8 @@ const GIFEncoder = require("gif-encoder-2");
 const { PNG } = require("pngjs");
 
 test("Generate Gacha GIF", async ({ page }) => {
-	// 1. Navigate to the page
+	// 1. Set Viewport (Mobile-like) and Navigate
+	await page.setViewportSize({ width: 390, height: 844 });
 	await page.goto("/");
 
 	// Wait for the button to be enabled, which signifies data is loaded
@@ -97,6 +98,7 @@ test("Generate Gacha GIF", async ({ page }) => {
 	}
 
 	const firstFrame = PNG.sync.read(frames[0]);
+	// Ensure dimensions match viewport or frame size (should be same)
 	const encoder = new GIFEncoder(firstFrame.width, firstFrame.height);
 	const outputFilePath = path.join(__dirname, "../../doc/gacha_demo.gif");
 
