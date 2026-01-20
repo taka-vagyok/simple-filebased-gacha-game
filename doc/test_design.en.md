@@ -56,6 +56,31 @@ The following items are subject to verification.
     *   Verify that promotion always occurs.
     *   Set rate to 0.0 (0%) and verify that promotion never occurs.
 
+### 3.5. Security Tests (v3.0.1 Added)
+Verification cases to ensure application robustness and vulnerability mitigation.
+
+#### Case: Path Traversal (Server)
+*   **Verification**:
+    *   Send requests to `api/getGachaData` with `folder=../docker`.
+    *   Send requests to `api/getItemAsset` with `image=../../../etc/passwd`.
+*   **Expected Result**:
+    *   Server returns an error (JSON or 400/500 status) and does NOT return raw file content.
+    *   Access attempt is logged (optional).
+
+#### Case: Static File Access Restriction (Server)
+*   **Verification**:
+    *   Access `/docker/server.js` or `/package.json` directly from the browser.
+*   **Expected Result**:
+    *   HTTP 404 Not Found is returned.
+
+#### Case: XSS Prevention (Client)
+*   **Verification**:
+    *   Inject malicious data containing `<script>alert('XSS')</script>` into `items.yaml` or Markdown files (via mock or file edit).
+    *   Trigger gacha and view result.
+*   **Expected Result**:
+    *   No alert dialog is shown.
+    *   `<script>` tags are removed or escaped in the DOM.
+
 ## 4. Automated Testing Implementation Guide (Recommended)
 For future integration into CI/CD pipelines, use **Playwright**.
 

@@ -10,6 +10,7 @@
 *   **設定が簡単**: `gacha.yaml` でグレードや確率を、`items.yaml` でアイテムリストを管理。
 *   **Markdown対応**: 景品の説明文はMarkdown形式で記述でき、リッチなテキスト表示が可能。
 *   **ハイブリッド構成**: Dockerコンテナでのローカル実行と、サーバーレスなGAS運用の両方に対応。
+*   **セキュリティ強化 (v3.0.1)**: パストラバーサル対策、XSS対策などOWASPガイドラインに基づいた堅牢性を確保。
 
 ## 遊び方 (Docker / ローカル実行)
 
@@ -86,7 +87,7 @@ Google Drive上のファイルをデータソースとして利用する場合�
 │   ├── Dockerfile
 │   └── server.js     # ローカル実行用簡易サーバー
 ├── gacha.js          # GAS用バックエンドコード
-├── verification/     # テストコード (Jest / Playwright)
+├── tests/            # テストコード (Unit: Jest / E2E: Playwright)
 └── doc/              # ドキュメント・仕様書
 ```
 

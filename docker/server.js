@@ -8,13 +8,37 @@ const port = 8000;
 const DATA_ROOT =
 	process.env.DATA_ROOT || path.join(__dirname, "../gacha_data");
 
+// Helper: Resolve Safe Path to prevent traversal
+function resolveSafePath(base, ...parts) {
+	const resolvedBase = path.resolve(base);
+	const resolvedTarget = path.resolve(base, ...parts);
+
+	// Ensure the resolved target starts with the resolved base directory + separator
+	// This prevents partial matches (e.g., /data matching /database)
+	const safeBase = resolvedBase.endsWith(path.sep)
+		? resolvedBase
+		: resolvedBase + path.sep;
+
+	if (!resolvedTarget.startsWith(safeBase) && resolvedTarget !== resolvedBase) {
+		throw new Error("Invalid path: Traversal detected");
+	}
+	return resolvedTarget;
+}
+
 // Request Logging Middleware (Before static files)
 app.use((req, _res, next) => {
 	console.log(`${new Date().toISOString()} ${req.method} ${req.url}`);
 	next();
 });
 
-app.use(express.static(path.join(__dirname, "..")));
+// Serve specific static files securely
+// 1. gacha-logic.js (Required by frontend)
+app.get("/gacha-logic.js", (_req, res) => {
+	res.sendFile(path.join(__dirname, "../gacha-logic.js"));
+});
+
+// 2. gacha_data directory (Required for assets)
+app.use("/gacha_data", express.static(DATA_ROOT));
 
 // Enable JSON parsing
 app.use(express.json());
@@ -22,10 +46,13 @@ app.use(express.json());
 // API: Get Gacha Data (gacha.yaml & items.yaml)
 app.get("/api/getGachaData", (req, res) => {
 	const folderName = req.query.folder || "gacha1";
-	const gachaYamlPath = path.join(DATA_ROOT, folderName, "gacha.yaml");
-	const itemsYamlPath = path.join(DATA_ROOT, folderName, "items.yaml");
 
 	try {
+		// Security Check
+		const folderPath = resolveSafePath(DATA_ROOT, folderName);
+		const gachaYamlPath = resolveSafePath(folderPath, "gacha.yaml");
+		const itemsYamlPath = resolveSafePath(folderPath, "items.yaml");
+
 		if (!fs.existsSync(gachaYamlPath) || !fs.existsSync(itemsYamlPath)) {
 			throw new Error(`Config files not found in: ${folderName}`);
 		}
@@ -55,11 +82,12 @@ app.get("/api/getItemAsset", (req, res) => {
 		return res.json({ success: false, error: "Missing parameters" });
 	}
 
-	const folderPath = path.join(DATA_ROOT, folderName);
-	const imgPath = path.join(folderPath, imgName);
-	const mdPath = path.join(folderPath, mdName);
-
 	try {
+		// Security Check
+		const folderPath = resolveSafePath(DATA_ROOT, folderName);
+		const imgPath = resolveSafePath(folderPath, imgName);
+		const mdPath = resolveSafePath(folderPath, mdName);
+
 		if (!fs.existsSync(imgPath) || !fs.existsSync(mdPath)) {
 			throw new Error("Assets not found");
 		}
@@ -83,8 +111,11 @@ app.get("/api/getItemAsset", (req, res) => {
 	}
 });
 
-// Serve gacha.html as root
+// Serve gacha.html as root and explicitly
 app.get("/", (_req, res) => {
+	res.sendFile(path.join(__dirname, "../gacha.html"));
+});
+app.get("/gacha.html", (_req, res) => {
 	res.sendFile(path.join(__dirname, "../gacha.html"));
 });
 

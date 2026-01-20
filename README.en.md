@@ -11,6 +11,7 @@ It can be easily run in a container environment (Docker) or integrated with Goog
 *   **Simple Item Management**: Just list items in `items.yaml` and assign them to grades.
 *   **Markdown Support**: Item descriptions can be written in Markdown for rich text display.
 *   **Hybrid Architecture**: Supports both local execution in Docker containers and serverless GAS operation.
+*   **Enhanced Security (v3.0.1)**: Robustness based on OWASP guidelines, including protection against Path Traversal and XSS.
 
 ## How to Play (Docker / Local Execution)
 
@@ -88,7 +89,7 @@ Procedure for using files on Google Drive as a data source.
 │   ├── Dockerfile
 │   └── server.js     # Simple server for local execution
 ├── gacha.js          # Backend code for GAS
-├── verification/     # Test Codes (Jest / Playwright)
+├── tests/            # Test Codes (Unit: Jest / E2E: Playwright)
 └── doc/              # Documents & Specs
 ```
 
