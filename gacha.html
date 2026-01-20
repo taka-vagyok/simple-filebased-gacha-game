@@ -259,7 +259,7 @@
 
                         // Tagging for animation
                         const lamps = svg.querySelectorAll('circle[fill="#FFD700"], circle[fill="#FF4081"]');
-                        lamps.forEach((lamp, i) => lamp.id = `lamp-${i}`);
+                        lamps.forEach((lamp, i) => { lamp.id = `lamp-${i}`; });
 
                         const energyGlow = svg.querySelector('ellipse[fill="url(#energy-glow)"]');
                         if(energyGlow) energyGlow.id = 'energy-glow-element';
@@ -412,7 +412,7 @@
 
           // Flashing Lights Effect
           const machine = document.getElementById('machine');
-          let animations = [];
+          const animations = [];
           if (machine) {
               const lamps = [machine.querySelector('#lamp-0'), machine.querySelector('#lamp-1')];
               const glow = machine.querySelector('#energy-glow-element');
