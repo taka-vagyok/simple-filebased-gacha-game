@@ -263,6 +263,9 @@
 
                         const energyGlow = svg.querySelector('ellipse[fill="url(#energy-glow)"]');
                         if(energyGlow) energyGlow.id = 'energy-glow-element';
+
+                        // Initialize random capsules inside the machine
+                        randomizeMachineCapsules(svg);
                     }
                 }
             })
@@ -276,6 +279,19 @@
                 }
             })
             .getCommonAsset('capsule.svg');
+      }
+
+      function randomizeMachineCapsules(svg) {
+          if (!svg) return;
+          // Find the group containing the capsule uses (based on clip-path structure in machine.svg)
+          // Look for 'use' elements that reference '#capsule'
+          const uses = svg.querySelectorAll('use[href="#capsule"]');
+          const colors = Object.values(COLOR_MAP).filter(c => !c.includes('url')); // Exclude rainbow/gradients for inside
+
+          uses.forEach(use => {
+             const randomColor = colors[Math.floor(Math.random() * colors.length)];
+             use.setAttribute('fill', randomColor);
+          });
       }
 
       function onDataLoaded(res) {
@@ -309,6 +325,10 @@
         smoke.classList.remove('smoke-pop');
 
         try {
+            // Refresh machine capsules for visual effect
+            const machineSvg = document.getElementById('machine');
+            if (machineSvg) randomizeMachineCapsules(machineSvg);
+
             // 1. Initial Draw (Weighted)
             const tempItem = GachaLogic.drawItemByWeight(gachaItems);
             let currentGradeKey = tempItem.grade;
