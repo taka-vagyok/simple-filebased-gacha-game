@@ -1,3 +1,7 @@
+/**
+ * This project was created by Generative AI.
+ * このプロジェクトは生成AIによって作成されました。
+ */
 const express = require("express");
 const fs = require("node:fs");
 const path = require("node:path");
