@@ -1,3 +1,8 @@
+/**
+ * This project was created by Generative AI.
+ * このプロジェクトは生成AIによって作成されました。
+ */
+
 // 定数：Drive上のルートフォルダ名（作成したフォルダ名に合わせてください）
 const ROOT_FOLDER_NAME = "MyGachaApp";
 

@@ -1,3 +1,7 @@
+/**
+ * This project was created by Generative AI.
+ * このプロジェクトは生成AIによって作成されました。
+ */
 ((root, factory) => {
 	if (typeof module === "object" && module.exports) {
 		// Node.js

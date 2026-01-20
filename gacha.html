@@ -118,6 +118,50 @@
           <div id="item-desc" class="text-left text-gray-700 text-sm bg-gray-50 p-3 rounded markdown-body"></div>
         </div>
       </div>
+
+      <footer class="mt-8 text-center">
+        <button onclick="showCredits()" class="text-gray-400 hover:text-gray-600 text-sm flex items-center justify-center gap-1 mx-auto">
+          <span>🤖</span> このアプリについて
+        </button>
+      </footer>
+
+      <div id="credits-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-6 max-w-sm w-full shadow-2xl relative">
+          <button onclick="closeCredits()" class="absolute top-2 right-3 text-gray-500 text-xl">&times;</button>
+
+          <h3 class="text-lg font-bold text-center mb-4 text-purple-600">🤖 AIといっしょにつくったよ！</h3>
+
+          <div class="space-y-4 text-sm text-gray-700">
+            <p>このガチャアプリは、にんげんとAI（人工知能）が力をあわせて開発しました。</p>
+
+            <div class="bg-gray-50 p-3 rounded-lg border border-gray-100">
+              <h4 class="font-bold text-xs text-gray-500 uppercase mb-2">Development Team</h4>
+              <ul class="space-y-2">
+                <li class="flex items-center gap-2">
+                  <span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">Code</span>
+                  <span>Gemini (Google) & Jules</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <span class="bg-pink-100 text-pink-800 text-xs px-2 py-0.5 rounded">Art</span>
+                  <span>DALL-E 3 / Midjourney</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded">Sound</span>
+                  <span>ElevenLabs / Suno</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded">Director</span>
+                  <span>パパ (Human)</span>
+                </li>
+              </ul>
+            </div>
+
+            <p class="text-xs text-gray-400 mt-4">
+              ※ 生成AIを使用しているため、予期しない動作をする場合があります。
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -386,6 +430,14 @@
         const machine = document.getElementById('machine');
         if(machine) machine.classList.remove('animate-shake');
         document.getElementById('capsule').classList.remove('capsule-appear');
+      }
+
+      function showCredits() {
+        document.getElementById('credits-modal').classList.remove('hidden');
+      }
+
+      function closeCredits() {
+        document.getElementById('credits-modal').classList.add('hidden');
       }
     </script>
   </body>
