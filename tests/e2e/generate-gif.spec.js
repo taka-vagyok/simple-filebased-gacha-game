@@ -5,9 +5,6 @@ const GIFEncoder = require("gif-encoder-2");
 const { PNG } = require("pngjs");
 
 test("Generate Gacha GIF", async ({ page }) => {
-	// Debug logging
-	page.on('console', msg => console.log(`PAGE LOG: ${msg.text()}`));
-
 	// 1. Navigate to the page
 	await page.goto("/");
 

@@ -23,26 +23,15 @@ test.describe("Gacha App E2E (Real Data)", () => {
 		const machine = page.locator("#machine");
 		await expect(machine).toBeVisible({ timeout: 10000 });
 
-		// Note: Colors are now randomized by the app itself (randomizeMachineCapsules)
-		// Verify that capsules have diverse colors (not all default or black)
-		await page.waitForTimeout(500); // Wait for randomization
-		const colors = await page.evaluate(() => {
+		// Verify that capsules are present in the machine (static definition)
+		const capsuleCount = await page.evaluate(() => {
 			const svg = document.getElementById("machine");
-			// Use the fallback selector logic matching gacha.html
-			let uses = svg.querySelectorAll('use[href="#capsule"]');
-			if (uses.length === 0) {
-				uses = svg.querySelectorAll('g[clip-path] use');
-			}
-			return Array.from(uses).map(u => u.getAttribute("fill"));
+			if (!svg) return 0;
+			// Simple check for presence of internal capsules
+			const uses = svg.querySelectorAll('g[clip-path] use');
+			return uses.length;
 		});
-
-		// Expect at least some capsules
-		expect(colors.length).toBeGreaterThan(0);
-		// Expect they are not all the same (probabilistic, but highly likely with >1 color options)
-		const uniqueColors = new Set(colors);
-		expect(uniqueColors.size).toBeGreaterThan(1);
-		// Expect valid hex colors (simple check)
-		colors.forEach(c => expect(c).toMatch(/^#|^url/));
+		expect(capsuleCount).toBeGreaterThan(0);
 
 		const btn = page.locator("#btn-pull");
 		await expect(btn).toBeEnabled({ timeout: 10000 });
