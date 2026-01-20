@@ -34,7 +34,7 @@ async function mockGachaApis(page, gachaConfig, items) {
 // Must be called AFTER page.goto because gacha.html defines 'wait' globally, overwriting any initScript
 async function skipAnimations(page) {
   await page.evaluate(() => {
-    window.wait = (ms) => Promise.resolve();
+    window.wait = (_ms) => Promise.resolve();
   });
 }
 

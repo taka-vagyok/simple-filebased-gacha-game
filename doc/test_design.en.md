@@ -43,7 +43,7 @@ The following items are subject to verification.
 *   **Checkpoints**:
     *   **Animation Loop**:
         *   Machine shakes (`.animate-shake`) -> Capsule appears.
-        *   If promoted: "Promotion Chance!" text/effect appears -> Capsule disappears -> Loop restarts.
+        *   If promoted: "Promotion Chance!" text/effect appears -> The machine's lamps and energy glow flash rapidly -> Capsule disappears -> Loop restarts.
         *   The color of the capsule changes according to the promoted grade (e.g., Blue -> Red).
     *   **Final Result**:
         *   Result screen (`#result-area`) appears eventually.

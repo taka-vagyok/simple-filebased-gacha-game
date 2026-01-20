@@ -6,6 +6,7 @@ A simple and fun Web Gacha App enjoyable for kids and adults.
 It can be easily run in a container environment (Docker) or integrated with Google Drive data using Google Apps Script (GAS).
 
 ## Features
+*   **New Machine Design (v3.1)**: Rich SVG-based machine design with enhanced visual effects like flashing LEDs!
 *   **Animation**: SVG-drawn gacha machine moves! Spins! Pops out!
 *   **Configurable Rules**: Define rules, grades, and promotion rates in `gacha.yaml`.
 *   **Simple Item Management**: Just list items in `items.yaml` and assign them to grades.
