@@ -7,6 +7,7 @@
 このプロジェクトは、**「人間が自然言語で仕様を書き、AI (Google Jules/Gemini) がコードを実装する」** という完全な AI共創プロセスで開発されました。
 
 ![Gacha Machine](doc/gacha_machine.png)
+![Gacha Animation](doc/gacha_demo.gif)
 
 ## 🚀 開発コンセプト: Spec-Driven AI Development
 このリポジトリの正本（Source of Truth）はコードではなく **仕様書 (`doc/spec.ja.md`)** です。
