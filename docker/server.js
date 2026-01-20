@@ -111,8 +111,11 @@ app.get("/api/getItemAsset", (req, res) => {
 	}
 });
 
-// Serve gacha.html as root
+// Serve gacha.html as root and explicitly
 app.get("/", (_req, res) => {
+	res.sendFile(path.join(__dirname, "../gacha.html"));
+});
+app.get("/gacha.html", (_req, res) => {
 	res.sendFile(path.join(__dirname, "../gacha.html"));
 });
 
