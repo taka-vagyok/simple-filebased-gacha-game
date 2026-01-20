@@ -85,7 +85,7 @@
       <h1 class="text-2xl font-bold text-gray-800 mb-6">お楽しみガチャ</h1>
 
       <!-- ガチャマシーンエリア -->
-      <div class="relative w-full max-w-[300px] mx-auto mb-8 aspect-[2/3]">
+      <div class="relative w-full max-w-[300px] mx-auto mb-8 aspect-[400/650]">
         <!-- Machine Container -->
         <div id="machine-container" class="w-full h-full drop-shadow-xl">
            <!-- SVG will be injected here -->
@@ -256,6 +256,13 @@
                     if(svg) {
                         svg.id = 'machine';
                         svg.classList.add('w-full', 'h-full');
+
+                        // Tagging for animation
+                        const lamps = svg.querySelectorAll('circle[fill="#FFD700"], circle[fill="#FF4081"]');
+                        lamps.forEach((lamp, i) => lamp.id = `lamp-${i}`);
+
+                        const energyGlow = svg.querySelector('ellipse[fill="url(#energy-glow)"]');
+                        if(energyGlow) energyGlow.id = 'energy-glow-element';
                     }
                 }
             })
@@ -375,7 +382,7 @@
         // Machine Shake
         if(machine) {
             machine.classList.add('animate-shake');
-            const handle = machine.querySelector('#machine-handle');
+            const handle = machine.querySelector('#knob');
             if(handle) {
                 handle.classList.remove('animate-spin-handle');
                 void handle.offsetWidth;
@@ -403,7 +410,31 @@
           const smoke = document.getElementById('smoke');
           smoke.classList.add('smoke-pop'); // Smoke
 
-          await wait(1000); // Pause to see smoke/effect
+          // Flashing Lights Effect
+          const machine = document.getElementById('machine');
+          let animations = [];
+          if (machine) {
+              const lamps = [machine.querySelector('#lamp-0'), machine.querySelector('#lamp-1')];
+              const glow = machine.querySelector('#energy-glow-element');
+
+              const elements = [...lamps, glow].filter(el => el);
+
+              elements.forEach(el => {
+                  const anim = el.querySelector('animate');
+                  if (anim) {
+                      const originalDur = anim.getAttribute('dur');
+                      anim.setAttribute('dur', '0.1s'); // Fast flash
+                      animations.push({ anim, originalDur });
+                  }
+              });
+          }
+
+          await wait(1500); // Pause to see smoke/effect
+
+          // Restore animations
+          animations.forEach(({ anim, originalDur }) => {
+              anim.setAttribute('dur', originalDur);
+          });
 
           smoke.classList.remove('smoke-pop');
           loading.innerText = originalText;

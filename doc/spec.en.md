@@ -88,6 +88,7 @@ This document defines the behavior of the Gacha App using Google Apps Script (GA
 
     1. Machine shakes, and a blue capsule ("blue") is discharged
     2. "Promotion" effect occurs just before the capsule opens
+       * The machine's lamps and energy glow flash rapidly
     3. Capsule disappears (reset), and machine starts shaking again
     4. This time, a red capsule ("red") is discharged
     5. (If no further promotion) Capsule opens, and item is displayed

@@ -1,48 +1,107 @@
-<svg width="400" height="600" viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg">
+<svg width="400" height="650" viewBox="0 0 400 650" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <path id="capsule-bottom" d="M -40 0 A 40 40 0 0 0 40 0 L -40 0 Z" />
-    <path id="capsule-top" d="M -40 0 A 40 40 0 0 1 40 0 L -40 0 Z" fill="#FFFFFF" opacity="0.5" />
+    <linearGradient id="body-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD54F;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFB300;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="panel-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFF8E1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFECB3;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="dome-grad" cx="50%" cy="50%" r="50%" fx="30%" fy="30%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.4" />
+      <stop offset="80%" style="stop-color:#E0F7FA;stop-opacity:0.2" />
+      <stop offset="100%" style="stop-color:#B2EBF2;stop-opacity:0.6" />
+    </radialGradient>
+    <linearGradient id="dome-reflection" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.8" />
+      <stop offset="50%" style="stop-color:#FFFFFF;stop-opacity:0" />
+    </linearGradient>
+    <radialGradient id="knob-grad" cx="50%" cy="50%" r="50%" fx="40%" fy="40%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF4081;stop-opacity:1" />
+    </radialGradient>
+    <radialGradient id="energy-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFD700;stop-opacity:0" />
+    </radialGradient>
 
-    <g id="machine-capsule-def">
+    <filter id="drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur" />
+      <feOffset in="blur" dx="0" dy="5" result="offsetBlur" />
+      <feFlood flood-color="rgba(0,0,0,0.3)" result="colorBlur" />
+      <feComposite in="colorBlur" in2="offsetBlur" operator="in" result="shadow" />
+      <feMerge>
+        <feMergeNode in="shadow" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <path id="capsule-bottom" d="M -45 0 A 45 45 0 0 0 45 0 L -45 0 Z" />
+    <path id="capsule-top" d="M -45 0 A 45 45 0 0 1 45 0 L -45 0 Z" fill="#FFFFFF" opacity="0.5" />
+    <g id="capsule" filter="url(#drop-shadow)">
       <use href="#capsule-bottom" class="capsule-color"/>
       <use href="#capsule-top" />
-      <circle cx="0" cy="0" r="40" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="2"/>
+      <ellipse cx="-15" cy="-15" rx="20" ry="10" rotate="-30" fill="white" opacity="0.7"/>
     </g>
   </defs>
 
-  <rect x="50" y="250" width="300" height="300" rx="20" fill="#FFD54F" />
-  <rect x="70" y="270" width="260" height="260" rx="10" fill="#FFECB3" />
-
-  <path d="M 50 250 A 150 150 0 0 1 350 250 L 350 250 L 50 250 Z" fill="#E0F7FA" opacity="0.6" stroke="#B2EBF2" stroke-width="4"/>
-
-  <g clip-path="url(#dome-clip)">
-    <clipPath id="dome-clip">
-      <path d="M 50 250 A 150 150 0 0 1 350 250 Z" />
-    </clipPath>
-
-    <g transform="translate(120, 200) rotate(-20)">
-      <use href="#machine-capsule-def" fill="#FF5252" /> </g>
-    <g transform="translate(260, 180) rotate(30)">
-      <use href="#machine-capsule-def" fill="#448AFF" /> </g>
-    <g transform="translate(190, 130) rotate(10)">
-      <use href="#machine-capsule-def" fill="#FFEB3B" /> </g>
-    <g transform="translate(200, 260) rotate(-10)">
-      <use href="#machine-capsule-def" fill="#66BB6A" /> </g>
-    <g transform="translate(100, 140) rotate(45)">
-      <use href="#machine-capsule-def" fill="#AB47BC" /> </g>
-    <g transform="translate(290, 240) rotate(-30)">
-      <use href="#machine-capsule-def" fill="#FF9800" /> </g>
-    <g transform="translate(160, 280) rotate(15)">
-       <use href="#machine-capsule-def" fill="#00BCD4" /> </g>
+  <g opacity="0.5">
+    <circle cx="50" cy="100" r="10" fill="#FFD700">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="350" cy="150" r="15" fill="#FF4081">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="4s" repeatCount="indefinite" begin="1s"/>
+    </circle>
+    <path d="M 20 550 L 30 530 L 40 550 L 50 530 L 60 550" stroke="#448AFF" stroke-width="3" fill="none"/>
+    <path d="M 340 520 L 350 500 L 360 520 L 370 500 L 380 520" stroke="#66BB6A" stroke-width="3" fill="none"/>
   </g>
 
-  <rect x="100" y="320" width="200" height="120" rx="10" fill="#FFFFFF" />
+  <g filter="url(#drop-shadow)" transform="translate(0, 20)">
+    <rect x="40" y="240" width="320" height="320" rx="30" fill="url(#body-grad)" stroke="#FF8F00" stroke-width="4" />
 
-  <g id="machine-handle">
-      <circle cx="200" cy="380" r="40" fill="#E0E0E0" stroke="#BDC3C7" stroke-width="2"/>
-      <rect x="180" y="360" width="40" height="40" rx="5" fill="#95A5A6" />
+    <rect x="30" y="280" width="20" height="240" rx="5" fill="#FFB300" stroke="#FF8F00" stroke-width="2"/>
+    <rect x="350" y="280" width="20" height="240" rx="5" fill="#FFB300" stroke="#FF8F00" stroke-width="2"/>
+    <circle cx="40" cy="300" r="5" fill="#FFECB3"/><circle cx="40" cy="500" r="5" fill="#FFECB3"/>
+    <circle cx="360" cy="300" r="5" fill="#FFECB3"/><circle cx="360" cy="500" r="5" fill="#FFECB3"/>
+
+    <rect x="70" y="280" width="260" height="240" rx="15" fill="url(#panel-grad)" stroke="#FFE082" stroke-width="2" />
+
+    <rect x="50" y="250" width="300" height="10" rx="5" fill="#FFECB3" stroke="#FFD54F">
+        <animate attributeName="fill" values="#FFECB3;#FFF9C4;#FFECB3" dur="2s" repeatCount="indefinite"/>
+    </rect>
   </g>
 
-  <path d="M 120 480 Q 200 520 280 480 L 280 530 Q 200 570 120 530 Z" fill="#333" opacity="0.3" />
-  <rect x="120" y="460" width="160" height="60" rx="10" fill="#333333" />
+  <g transform="translate(0, 20)">
+    <path d="M 50 250 A 150 150 0 0 1 350 250" fill="none" stroke="#FFB300" stroke-width="10" stroke-linecap="round"/>
+    <path d="M 55 250 A 145 145 0 0 1 345 250 L 345 250 L 55 250 Z" fill="url(#dome-grad)" stroke="#E0F7FA" stroke-width="2"/>
+
+    <g clip-path="url(#dome-clip)">
+      <clipPath id="dome-clip"><path d="M 55 250 A 145 145 0 0 1 345 250 Z" /></clipPath>
+      <g transform="translate(120, 200) rotate(-20)"><use href="#capsule" fill="#FF5252" /></g>
+      <g transform="translate(260, 180) rotate(30)"><use href="#capsule" fill="#448AFF" /></g>
+      <g transform="translate(190, 130) rotate(10)"><use href="#capsule" fill="#FFEB3B" /></g>
+      <g transform="translate(150, 260) rotate(-45)"><use href="#capsule" fill="#66BB6A" /></g>
+      <g transform="translate(100, 150) rotate(20)"><use href="#capsule" fill="#AB47BC" /></g>
+      <g transform="translate(280, 240) rotate(-15)"><use href="#capsule" fill="#FF9800" /></g>
+    </g>
+    <path d="M 80 180 A 100 100 0 0 1 200 120" fill="none" stroke="url(#dome-reflection)" stroke-width="15" opacity="0.7" stroke-linecap="round"/>
+  </g>
+
+  <g transform="translate(0, 20)">
+    <circle cx="200" cy="380" r="60" fill="#FFD54F" stroke="#FF8F00" stroke-width="3" filter="url(#drop-shadow)"/>
+    <circle cx="200" cy="380" r="50" fill="#FFF8E1"/>
+
+    <g id="knob" filter="url(#drop-shadow)">
+      <circle cx="200" cy="380" r="40" fill="url(#knob-grad)" stroke="#E91E63" stroke-width="2"/>
+      <path d="M 200 340 L 210 370 L 240 380 L 210 390 L 200 420 L 190 390 L 160 380 L 190 370 Z" fill="white" opacity="0.3"/>
+      <rect x="180" y="360" width="40" height="40" rx="5" fill="#C2185B" opacity="0.5"/>
+    </g>
+
+    <path d="M 110 480 Q 200 530 290 480 L 290 540 Q 200 580 110 540 Z" fill="#3E2723" stroke="#5D4037" stroke-width="3" filter="url(#drop-shadow)"/>
+    <rect x="120" y="470" width="160" height="10" rx="5" fill="#5D4037"/>
+    <ellipse cx="200" cy="510" rx="80" ry="20" fill="url(#energy-glow)" opacity="0.6">
+        <animate attributeName="opacity" values="0.6;0.8;0.6" dur="1.5s" repeatCount="indefinite"/>
+    </ellipse>
+  </g>
 </svg>
