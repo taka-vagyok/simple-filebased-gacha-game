@@ -23,27 +23,8 @@ test.describe("Gacha App E2E (Real Data)", () => {
 		const machine = page.locator("#machine");
 		await expect(machine).toBeVisible({ timeout: 10000 });
 
-		// Ensure mixed colors for documentation screenshot
-		// Inspect capsules inside the machine and ensure they have diverse colors
-		await page.evaluate(() => {
-			const svg = document.getElementById("machine");
-			if (!svg) return;
-			// Find all 'use' elements that are part of the machine internals
-			const uses = svg.querySelectorAll("g[clip-path] use");
-			const colors = [
-				"#FF5252", // Red
-				"#448AFF", // Blue
-				"#FFEB3B", // Yellow
-				"#66BB6A", // Green
-				"#AB47BC", // Purple
-				"#FF9800", // Orange
-				"#00BCD4", // Cyan
-			];
-
-			uses.forEach((use, index) => {
-				use.setAttribute("fill", colors[index % colors.length]);
-			});
-		});
+		// Note: Colors are now randomized by the app itself (randomizeMachineCapsules)
+		// We trust the app logic for the screenshot.
 
 		const btn = page.locator("#btn-pull");
 		await expect(btn).toBeEnabled({ timeout: 10000 });
