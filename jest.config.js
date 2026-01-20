@@ -3,5 +3,6 @@ module.exports = {
 	collectCoverage: true,
 	coverageDirectory: "coverage",
 	collectCoverageFrom: ["gacha-logic.js"],
-	testPathIgnorePatterns: ["/node_modules/", "/verification/e2e/"],
+	testMatch: ["**/tests/unit/**/*.test.js"],
+	testPathIgnorePatterns: ["/node_modules/", "/tests/e2e/"],
 };

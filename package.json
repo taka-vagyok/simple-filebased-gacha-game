@@ -15,6 +15,7 @@
 		"@biomejs/biome": "2.3.11",
 		"@playwright/test": "^1.40.0",
 		"jest": "^29.7.0",
-		"jest-environment-jsdom": "^29.7.0"
+		"jest-environment-jsdom": "^29.7.0",
+		"js-yaml": "^4.1.1"
 	}
 }
