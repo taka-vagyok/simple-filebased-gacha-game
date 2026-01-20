@@ -63,6 +63,13 @@ This document defines the behavior of the Gacha App using Google Apps Script (GA
       AND Return to the start of the loop and redo animation with the new grade
 
       IF Promotion is lost
+      THEN Perform fake promotion judgment (`fake_rate`)
+
+      IF Fake promotion is won
+      THEN Show "Promotion Effect" (but capsule color does not change, and grade is maintained)
+      AND End loop and proceed to result display
+
+      IF Fake promotion is also lost
       THEN End loop and proceed to result display
 
     # 3. Item Re-selection

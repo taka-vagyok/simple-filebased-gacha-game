@@ -10,6 +10,7 @@ grades:
     promotion:
       next_grade: "G2"   # 昇格先
       rate: 0.1          # 昇格確率 (10%)
+      fake_rate: 0.5     # フェイク昇格確率 (50%)
 
   G2:
     name: "Rare"
