@@ -3,7 +3,7 @@
     <path id="capsule-bottom" d="M -40 0 A 40 40 0 0 0 40 0 L -40 0 Z" />
     <path id="capsule-top" d="M -40 0 A 40 40 0 0 1 40 0 L -40 0 Z" fill="#FFFFFF" opacity="0.5" />
 
-    <g id="capsule">
+    <g id="machine-capsule-def">
       <use href="#capsule-bottom" class="capsule-color"/>
       <use href="#capsule-top" />
       <circle cx="0" cy="0" r="40" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="2"/>
@@ -21,19 +21,19 @@
     </clipPath>
 
     <g transform="translate(120, 200) rotate(-20)">
-      <use href="#capsule" fill="#FF5252" /> </g>
+      <use href="#machine-capsule-def" fill="#FF5252" /> </g>
     <g transform="translate(260, 180) rotate(30)">
-      <use href="#capsule" fill="#448AFF" /> </g>
+      <use href="#machine-capsule-def" fill="#448AFF" /> </g>
     <g transform="translate(190, 130) rotate(10)">
-      <use href="#capsule" fill="#FFEB3B" /> </g>
+      <use href="#machine-capsule-def" fill="#FFEB3B" /> </g>
     <g transform="translate(200, 260) rotate(-10)">
-      <use href="#capsule" fill="#66BB6A" /> </g>
+      <use href="#machine-capsule-def" fill="#66BB6A" /> </g>
     <g transform="translate(100, 140) rotate(45)">
-      <use href="#capsule" fill="#AB47BC" /> </g>
+      <use href="#machine-capsule-def" fill="#AB47BC" /> </g>
     <g transform="translate(290, 240) rotate(-30)">
-      <use href="#capsule" fill="#FF9800" /> </g>
+      <use href="#machine-capsule-def" fill="#FF9800" /> </g>
     <g transform="translate(160, 280) rotate(15)">
-       <use href="#capsule" fill="#00BCD4" /> </g>
+       <use href="#machine-capsule-def" fill="#00BCD4" /> </g>
   </g>
 
   <rect x="100" y="320" width="200" height="120" rx="10" fill="#FFFFFF" />
