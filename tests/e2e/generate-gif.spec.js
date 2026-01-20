@@ -11,15 +11,34 @@ test("Generate Gacha GIF", async ({ page }) => {
 	// Wait for the button to be enabled, which signifies data is loaded
 	const btn = page.locator("#btn-pull");
 	await btn.waitFor({ state: "visible", timeout: 10000 });
-
-	// Ensure it's not disabled (data loaded)
-	// We might need to wait a bit if it starts disabled
 	await test.expect(btn).toBeEnabled({ timeout: 10000 });
 
 	// Wait for machine to appear
 	await page.locator("#machine").waitFor({ state: "visible", timeout: 10000 });
 
-	// 2. Force Grade 5 (Rainbow) Result
+	// 2. Inject Mixed Colors (Visual Improvement)
+	await page.evaluate(() => {
+		const svg = document.getElementById("machine");
+		if (!svg) return;
+		// Find all 'use' elements that are part of the machine internals
+		const uses = svg.querySelectorAll("g[clip-path] use");
+		const colors = [
+			"#FF5252", // Red
+			"#448AFF", // Blue
+			"#FFEB3B", // Yellow
+			"#66BB6A", // Green
+			"#AB47BC", // Purple
+			"#FF9800", // Orange
+			"#00BCD4", // Cyan
+		];
+
+		uses.forEach((use, index) => {
+			use.setAttribute("fill", colors[index % colors.length]);
+		});
+		console.log("Injected mixed colors into gacha machine.");
+	});
+
+	// 3. Force Grade 5 (Rainbow) Result
 	// We override the gachaItems to only contain one G5 item.
 	await page.evaluate(() => {
 		window.gachaItems = [
@@ -35,21 +54,61 @@ test("Generate Gacha GIF", async ({ page }) => {
 		console.log("Forced Gacha Items to G5 only");
 	});
 
-	// 3. Prepare for recording
-	const frames = [];
-	const duration = 3000; // 3 seconds recording time
-	const interval = 100; // Capture every 100ms
-	const startTime = Date.now();
-
 	// 4. Trigger Action
+	console.log("Starting action...");
 	await btn.click();
 
 	// 5. Capture Loop
 	console.log("Starting capture...");
-	while (Date.now() - startTime < duration) {
-		const buffer = await page.screenshot();
+	const frames = [];
+	const delays = []; // Track actual delay per frame
+	const startTime = Date.now();
+	let lastFrameTime = startTime;
+
+	// Loop controls
+	let capsuleAppeared = false;
+	let appearTime = 0;
+	const POST_APPEAR_DURATION = 1000; // Capture 1s after capsule appears
+	const MAX_DURATION = 5000; // Safety timeout
+
+	while (true) {
+		const now = Date.now();
+		if (now - startTime > MAX_DURATION) {
+			console.log("Max duration exceeded.");
+			break;
+		}
+
+		// Check if capsule has appeared
+		const isAppeared = await page.evaluate(() => {
+			const c = document.getElementById('capsule');
+			return c && c.classList.contains('capsule-appear');
+		});
+
+		if (isAppeared && !capsuleAppeared) {
+			console.log("Capsule appearance detected!");
+			capsuleAppeared = true;
+			appearTime = now;
+		}
+
+		// Stop condition: 1s after appearance
+		if (capsuleAppeared && (now - appearTime > POST_APPEAR_DURATION)) {
+			console.log("Post-appear duration captured.");
+			break;
+		}
+
+		// Capture Frame
+		const buffer = await page.screenshot(); // This takes time!
 		frames.push(buffer);
-		await page.waitForTimeout(interval);
+
+		// Calculate delay for this frame (time since last frame start)
+		const frameEnd = Date.now();
+		const delay = frameEnd - lastFrameTime;
+		delays.push(delay);
+		lastFrameTime = frameEnd;
+
+		// Optional: Small sleep to prevent tight loop overload,
+		// though screenshot is already slow.
+		// await page.waitForTimeout(50);
 	}
 	console.log(`Captured ${frames.length} frames.`);
 
@@ -69,11 +128,14 @@ test("Generate Gacha GIF", async ({ page }) => {
 
 	encoder.start();
 	encoder.setRepeat(0);
-	encoder.setDelay(interval);
 	encoder.setQuality(10);
 
-	for (const frameBuffer of frames) {
-		const png = PNG.sync.read(frameBuffer);
+	// Add frames with their dynamic delays
+	for (let i = 0; i < frames.length; i++) {
+		const png = PNG.sync.read(frames[i]);
+		const delayMs = delays[i];
+		// gif-encoder-2 takes delay in ms
+		encoder.setDelay(delayMs);
 		encoder.addFrame(png.data);
 	}
 
