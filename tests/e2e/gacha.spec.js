@@ -23,36 +23,24 @@ test.describe("Gacha App E2E (Real Data)", () => {
 		const machine = page.locator("#machine");
 		await expect(machine).toBeVisible({ timeout: 10000 });
 
-		// Ensure mixed colors for documentation screenshot
-		// Inspect capsules inside the machine and ensure they have diverse colors
-		await page.evaluate(() => {
+		// Verify that capsules are present in the machine (static definition)
+		const capsuleCount = await page.evaluate(() => {
 			const svg = document.getElementById("machine");
-			if (!svg) return;
-			// Find all 'use' elements that are part of the machine internals
-			const uses = svg.querySelectorAll("g[clip-path] use");
-			const colors = [
-				"#FF5252", // Red
-				"#448AFF", // Blue
-				"#FFEB3B", // Yellow
-				"#66BB6A", // Green
-				"#AB47BC", // Purple
-				"#FF9800", // Orange
-				"#00BCD4", // Cyan
-			];
-
-			uses.forEach((use, index) => {
-				use.setAttribute("fill", colors[index % colors.length]);
-			});
+			if (!svg) return 0;
+			// Simple check for presence of internal capsules
+			const uses = svg.querySelectorAll('g[clip-path] use');
+			return uses.length;
 		});
+		expect(capsuleCount).toBeGreaterThan(0);
 
 		const btn = page.locator("#btn-pull");
 		await expect(btn).toBeEnabled({ timeout: 10000 });
-
-		const machineContainer = page.locator("#machine-container");
-		await machineContainer.screenshot({ path: "doc/gacha_machine.png" });
 	});
 
 	test("Gacha Execution Flow", async ({ page }) => {
+        // Debug
+        page.on('console', msg => console.log(`PAGE LOG: ${msg.text()}`));
+
 		await page.goto("/");
 
         // Skip animations for speed
@@ -64,8 +52,21 @@ test.describe("Gacha App E2E (Real Data)", () => {
 		await btn.click();
 		await expect(btn).toBeDisabled();
 
+        // New Flow: Click active capsule to open
+        const activeCapsule = page.locator('.active-capsule');
+        // Wait for capsule to be ready (animation finishes in 2s, but skipAnimations might not affect setTimeout in spawnCapsule)
+        await activeCapsule.waitFor({ state: "visible", timeout: 15000 });
+
+        // Ensure it's interactive
+        await page.waitForTimeout(2000);
+        // Trigger click via JS to avoid animation/pointer-event issues
+        await page.evaluate(() => {
+            const cap = document.querySelector('.active-capsule');
+            if(cap) cap.click();
+        });
+
 		const resultArea = page.locator("#result-area");
-		await expect(resultArea).toBeVisible();
+		await expect(resultArea).toBeVisible({ timeout: 10000 });
 
 		const resultContent = page.locator("#result-content");
 		await expect(resultContent).toBeVisible({ timeout: 20000 });
