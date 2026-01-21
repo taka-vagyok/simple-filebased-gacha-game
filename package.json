@@ -6,8 +6,8 @@
 		"test": "jest --coverage",
 		"test:watch": "jest --watch",
 		"test:changed": "jest --onlyChanged",
-		"test:e2e": "playwright test",
-		"generate-gif": "playwright test tests/e2e/generate-gif.spec.js",
+		"test:e2e": "playwright test tests/e2e",
+		"generate-gif": "playwright test tests/tools/generate-gif.spec.js",
 		"lint": "biome lint .",
 		"format": "biome format .",
 		"check": "biome check ."
@@ -15,6 +15,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "2.3.11",
 		"@playwright/test": "^1.40.0",
+		"express": "^5.2.1",
 		"gif-encoder-2": "^1.0.5",
 		"jest": "^29.7.0",
 		"jest-environment-jsdom": "^29.7.0",

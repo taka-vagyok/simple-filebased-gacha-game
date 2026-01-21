@@ -7,6 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.8/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
     <script src="gacha-logic.js"></script>
     
     <!-- Google Fonts: Noto Sans JP -->
@@ -246,10 +247,38 @@
         withSuccessHandler: function(success) { const r = Object.create(this); r._success = success; return r; },
         withFailureHandler: function(failure) { const r = Object.create(this); r._failure = failure; return r; },
         getGachaData: function(folder) {
-            fetch(`/api/getGachaData?folder=${folder}`).then(r=>r.json()).then(d=>this._success&&this._success(d)).catch(e=>this._failure&&this._failure(e));
+            fetch(`/api/getGachaData?folder=${encodeURIComponent(folder)}`).then(r=>r.json()).then(d=>this._success&&this._success(d)).catch(e=>this._failure&&this._failure(e));
         },
         getItemAsset: function(folder, img, desc) {
-            fetch(`/api/getItemAsset?folder=${folder}&image=${img}&description=${desc}`).then(r=>r.json()).then(d=>this._success&&this._success(d)).catch(e=>this._failure&&this._failure(e));
+            fetch(`/api/getItemAsset?folder=${encodeURIComponent(folder)}&image=${encodeURIComponent(img)}&description=${encodeURIComponent(desc)}`).then(r=>r.json()).then(d=>this._success&&this._success(d)).catch(e=>this._failure&&this._failure(e));
+        }
+      };
+
+      // Sound Manager
+      const SoundManager = {
+        sounds: {},
+        init: function() {
+            if (typeof Howl === 'undefined') {
+                console.warn("Howler.js not loaded.");
+                return;
+            }
+            // Define sound assets.
+            // Ideally these paths should be configurable or come from gacha.yaml,
+            // but for now we hardcode standard keys mapping to gacha_data/sounds/
+            const soundKeys = ['shake', 'capsule_appear', 'crack', 'promotion', 'result'];
+
+            soundKeys.forEach(key => {
+                this.sounds[key] = new Howl({
+                    src: [`gacha_data/sounds/${key}.mp3`],
+                    volume: 0.5,
+                    onloaderror: (id, err) => { console.warn(`Sound load error for ${key}:`, err); }
+                });
+            });
+        },
+        play: function(key) {
+            if (this.sounds[key]) {
+                this.sounds[key].play();
+            }
         }
       };
 
@@ -259,6 +288,7 @@
       }
 
       window.onload = () => {
+        SoundManager.init();
         setGachaState('loading');
         backend.withSuccessHandler(onDataLoaded).withFailureHandler(onError).getGachaData(GACHA_FOLDER);
       };
@@ -304,10 +334,12 @@
 
             // Phase 1: Action
             setGachaState('shaking');
+            SoundManager.play('shake');
             await playActionAnimation();
 
             // Phase 2: Emission
             setGachaState('capsule_appearing');
+            SoundManager.play('capsule_appear');
             const activeCapsule = await spawnCapsule(gachaConfig.grades[currentGradeKey].color);
 
             // Phase 3: Wait for Open
@@ -322,12 +354,14 @@
                 if (nextGradeKey) {
                     // Real Promotion
                     setGachaState('promoting');
+                    SoundManager.play('promotion');
                     await playPromotionEffect(activeCapsule, gachaConfig.grades[nextGradeKey].color);
                     currentGradeKey = nextGradeKey;
                     // Loop continues to check next promotion
                 } else if (GachaLogic.checkFakePromotion(gradeConfig)) {
                     // Fake Promotion (End of chain)
                     setGachaState('promoting');
+                    SoundManager.play('promotion'); // Use same sound or specific fake sound
                     console.log("Fake Promotion Triggered!");
                     await playPromotionEffect(activeCapsule, gradeConfig.color); // Color doesn't change, just effect
                     break;
@@ -385,50 +419,49 @@
           }
       }
 
-      function spawnCapsule(colorName) {
-          return new Promise(resolve => {
-              const layer = document.getElementById('capsule-layer');
-              const exitHole = document.getElementById('exit-hole');
+      async function spawnCapsule(colorName) {
+          const layer = document.getElementById('capsule-layer');
+          const exitHole = document.getElementById('exit-hole');
 
-              // Get exit coordinates relative to SVG
-              // Since SVG is responsive, we need getBoundingClientRect logic or work in SVG units.
-              // SVG units are 400x650.
-              // Exit hole 'd' starts around 110, 480.
-              // Let's inject an SVG element into layer.
+          // Get exit coordinates relative to SVG
+          // Since SVG is responsive, we need getBoundingClientRect logic or work in SVG units.
+          // SVG units are 400x650.
+          // Exit hole 'd' starts around 110, 480.
+          // Let's inject an SVG element into layer.
 
-              const capsule = document.createElement('div');
-              capsule.classList.add('active-capsule', 'w-24', 'h-24', 'absolute');
+          const capsule = document.createElement('div');
+          capsule.classList.add('active-capsule', 'w-24', 'h-24', 'absolute');
 
-              // Initial Pos: Center of Exit Hole (approx 200, 500 in SVG coords)
-              // We need to map SVG coords to pixel coords if possible, or use % if viewBox matches aspect.
-              // 200/400 = 50% Left. 500/650 = ~77% Top.
-              capsule.style.left = '50%';
-              capsule.style.top = '77%';
-              capsule.style.transform = 'translate(-50%, -50%) scale(0.1) rotate(0deg)';
+          // Initial Pos: Center of Exit Hole (approx 200, 500 in SVG coords)
+          // We need to map SVG coords to pixel coords if possible, or use % if viewBox matches aspect.
+          // 200/400 = 50% Left. 500/650 = ~77% Top.
+          capsule.style.left = '50%';
+          capsule.style.top = '77%';
+          capsule.style.transform = 'translate(-50%, -50%) scale(0.1) rotate(0deg)';
 
-              // SVG Content
-              const colorHex = COLOR_MAP[colorName] || colorName;
-              capsule.innerHTML = `
-                <svg viewBox="-50 -50 100 100" width="100%" height="100%">
-                   <use href="#m-capsule" fill="${colorHex}" />
-                </svg>
-              `;
+          // SVG Content
+          const colorHex = COLOR_MAP[colorName] || colorName;
+          capsule.innerHTML = `
+            <svg viewBox="-50 -50 100 100" width="100%" height="100%">
+               <use href="#m-capsule" fill="${colorHex}" />
+            </svg>
+          `;
 
-              layer.appendChild(capsule);
+          layer.appendChild(capsule);
 
-              // Force Reflow
-              void capsule.offsetWidth;
+          // Force Reflow
+          void capsule.offsetWidth;
 
-              // Animate to Center (50%, 50%)
-              requestAnimationFrame(() => {
-                  capsule.style.top = '50%';
-                  capsule.style.transform = 'translate(-50%, -50%) scale(1.5) rotate(720deg)';
-                  capsule.style.opacity = '1';
-              });
-
-              // Wait for transition
-              setTimeout(() => resolve(capsule), 2000);
+          // Animate to Center (50%, 50%)
+          requestAnimationFrame(() => {
+              capsule.style.top = '50%';
+              capsule.style.transform = 'translate(-50%, -50%) scale(1.5) rotate(720deg)';
+              capsule.style.opacity = '1';
           });
+
+          // Wait for transition
+          await wait(2000);
+          return capsule;
       }
 
       function waitForClick(element) {
@@ -447,6 +480,7 @@
           capsule.classList.remove('animate-shake');
 
           // Crack & Light
+          SoundManager.play('crack');
           capsule.classList.add('crack-effect');
           document.body.classList.add('promotion-bg'); // Background Change
           await wait(1000);
@@ -481,6 +515,7 @@
 
       function showResult(item, assets) {
         if (assets.success) {
+          SoundManager.play('result');
           const content = document.getElementById('result-content');
           content.classList.remove('hidden');
           document.getElementById('result-area').classList.remove('hidden');

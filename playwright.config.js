@@ -1,7 +1,8 @@
 const { defineConfig } = require("@playwright/test");
 
 module.exports = defineConfig({
-	testDir: "./tests/e2e",
+	testDir: "./tests",
+	testIgnore: "**/unit/**", // Ignore Jest unit tests
 	timeout: 30000,
 	expect: {
 		timeout: 5000,

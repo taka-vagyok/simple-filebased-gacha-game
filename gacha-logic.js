@@ -12,14 +12,21 @@
 	}
 })(typeof self !== "undefined" ? self : this, () => {
 	function drawItemByWeight(items) {
+		if (!items || items.length === 0) return null;
+
 		const totalWeight = items.reduce(
-			(sum, item) => sum + (item.weight || 1),
+			(sum, item) => sum + (item.weight !== undefined ? item.weight : 1),
 			0,
 		);
+
+		// Handle case where total weight is 0 (all items weight 0?)
+		// Fallback to equal probability or first item
+		if (totalWeight <= 0) return items[0];
+
 		let random = Math.random() * totalWeight;
 
 		for (const item of items) {
-			random -= item.weight || 1;
+			random -= item.weight !== undefined ? item.weight : 1;
 			if (random < 0) return item;
 		}
 		return items[0];
