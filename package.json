@@ -6,8 +6,8 @@
 		"test": "jest --coverage",
 		"test:watch": "jest --watch",
 		"test:changed": "jest --onlyChanged",
-		"test:e2e": "playwright test",
-		"generate-gif": "playwright test tests/e2e/generate-gif.spec.js",
+		"test:e2e": "playwright test tests/e2e",
+		"generate-gif": "playwright test tests/tools/generate-gif.spec.js",
 		"lint": "biome lint .",
 		"format": "biome format .",
 		"check": "biome check ."
