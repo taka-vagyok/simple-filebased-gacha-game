@@ -34,6 +34,16 @@ describe("GachaLogic", () => {
 			expect(result.id).toBe(1);
 			jest.restoreAllMocks();
 		});
+
+		test("should return null if items list is empty", () => {
+			expect(GachaLogic.drawItemByWeight([])).toBeNull();
+			expect(GachaLogic.drawItemByWeight(null)).toBeNull();
+		});
+
+		test("should return first item if total weight is 0", () => {
+			const items = [{ id: 1, weight: 0 }, { id: 2, weight: 0 }];
+			expect(GachaLogic.drawItemByWeight(items).id).toBe(1);
+		});
 	});
 
 	describe("checkPromotion", () => {

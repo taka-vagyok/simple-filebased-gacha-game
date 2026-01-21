@@ -20,5 +20,8 @@
 		"jest-environment-jsdom": "^29.7.0",
 		"js-yaml": "^4.1.1",
 		"pngjs": "^7.0.0"
+	},
+	"dependencies": {
+		"express": "^5.2.1"
 	}
 }
