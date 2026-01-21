@@ -46,7 +46,8 @@ test.describe('Security Tests', () => {
     await mockGachaApis(page, gachaConfig, items);
 
     // Override getItemAsset to return the actual description for XSS test
-    await page.route('/api/getItemAsset*', async route => {
+    // Use Regex to ensure we match even with heavy encoding
+    await page.route(/\/api\/getItemAsset/, async route => {
         const url = new URL(route.request().url());
         const descParam = url.searchParams.get('description');
         await route.fulfill({

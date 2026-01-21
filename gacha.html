@@ -247,10 +247,10 @@
         withSuccessHandler: function(success) { const r = Object.create(this); r._success = success; return r; },
         withFailureHandler: function(failure) { const r = Object.create(this); r._failure = failure; return r; },
         getGachaData: function(folder) {
-            fetch(`/api/getGachaData?folder=${folder}`).then(r=>r.json()).then(d=>this._success&&this._success(d)).catch(e=>this._failure&&this._failure(e));
+            fetch(`/api/getGachaData?folder=${encodeURIComponent(folder)}`).then(r=>r.json()).then(d=>this._success&&this._success(d)).catch(e=>this._failure&&this._failure(e));
         },
         getItemAsset: function(folder, img, desc) {
-            fetch(`/api/getItemAsset?folder=${folder}&image=${img}&description=${desc}`).then(r=>r.json()).then(d=>this._success&&this._success(d)).catch(e=>this._failure&&this._failure(e));
+            fetch(`/api/getItemAsset?folder=${encodeURIComponent(folder)}&image=${encodeURIComponent(img)}&description=${encodeURIComponent(desc)}`).then(r=>r.json()).then(d=>this._success&&this._success(d)).catch(e=>this._failure&&this._failure(e));
         }
       };
 
